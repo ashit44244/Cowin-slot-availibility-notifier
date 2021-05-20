@@ -84,10 +84,4 @@ def cowinApiCall():
 
 
 
-#cowinApiCall()
-
-schedule.every(5).seconds.do(cowinApiCall)
-
-while True:
-    schedule.run_pending()
-    time.sleep(1)
+cowinApiCall()
