@@ -13,5 +13,5 @@ def telegram_bot_sendtext(bot_message):
 
     return response.json()
 
-test = telegram_bot_sendtext("Testing Telegram bot")
-print(test)
+#test = telegram_bot_sendtext("Testing Telegram bot")
+#print(test)

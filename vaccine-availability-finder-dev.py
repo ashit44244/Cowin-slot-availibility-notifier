@@ -7,9 +7,11 @@ from fake_useragent import UserAgent
 from CenterDetails import CenterInfo
 import schedule
 import time
-
+import logging
+logging.basicConfig(filename='myapp.log', format='%(asctime)s : %(levelname)s - %(message)s', level=logging.INFO, datefmt='%m/%d/%Y %I:%M:%S %p' )
 
 def cowinApiCall():
+    logging.info('-----Started -------')
     temp_user_agent = UserAgent()
     browser_header = {'User-Agent': temp_user_agent.random}
     systemDate = datetime.today().strftime('%d-%m-%Y')
@@ -24,12 +26,12 @@ def cowinApiCall():
 
     response = requests.get(calendarByDistrictUrl,
                             headers=browser_header, params=queryparam)
-    print(response)
+    logging.info('response: '+ str(response))
     if response.ok:
         resp_json = response.json()
         if resp_json["centers"]:
-            print("Available on: ", systemDate,
-                "for 18-45 age group ,user age: ", age)
+            logging.info('Available on: '+ str(systemDate) +
+                ' for 18-45 age group ,user age: ' + str(age))
             for center in resp_json["centers"]:
                 for session in center["sessions"]:
                     if session["min_age_limit"] <= age:
@@ -40,31 +42,33 @@ def cowinApiCall():
                         capacity = session["available_capacity"]
                         dose1 = session["available_capacity_dose1"]
                         dose2 = session["available_capacity_dose2"]
-                        print("\t", center["name"])
-                        print("\t", center["block_name"])
-                        print("\t Price: ", center["fee_type"])
-                        print("\t Available Capacity: ",
-                            session["available_capacity"])
-                        print("\t Available Dose 1: ",
-                            session["available_capacity_dose1"])
-                        print("\t Available Dose 2: ",
-                            session["available_capacity_dose2"])
+                        logging.info('\t ' + center["name"])
+                        logging.info('\t ' + center["block_name"])
+                        logging.info('\t Price: ' +  center["fee_type"])
+                        logging.info('\t Available Capacity: ' +
+                            str(session["available_capacity"]))
+                        logging.info('\t Available Dose 1: ' +
+                            str(session["available_capacity_dose1"]))
+                        logging.info('\t Available Dose 2: ' +
+                            str(session["available_capacity_dose2"]))
                         if(session["vaccine"] != ''):
-                            print("\t Vaccine: ", session["vaccine"])
+                            logging.info('\t Vaccine: ' + session["vaccine"])
                             vaccine = session["vaccine"]
-                        print("\t min age limit : ",
-                              session["min_age_limit"])
-                        print("\t date: ",
-                              session["date"])
+                        logging.info('\t min age limit : ' +
+                              str(session["min_age_limit"]))
+                        logging.info('\t date: ' +
+                              str(session["date"]))
                         ageLimit = session["min_age_limit"]
                         date = session["date"]
-                        print("----------------------------------- \n\n ")
+                        logging.info('----------------------------------- \n\n ')
                         centerList.append(CenterInfo(name, block, pincode, feeType, capacity, dose1, dose2, vaccine,ageLimit, date))
         else:
-            print("No available centers on ", systemDate)
+            logging.info("No available centers on ", systemDate)
 
     for center in centerList:
         if center.capacity > 0:
+            logging.info(' slots available - sending telegram notification:  center name : ' + str(center.name) +
+                         ' capacity: ' + str(center.capacity) + ' pincode: ' + str(center.pincode))
             telegram_bot_sendtext("Center : " + center.name + "\n"
                               + "Block : " + center.blockName + "\n"
                               + "pincode : " + str(center.pincode) + "\n"
@@ -76,7 +80,7 @@ def cowinApiCall():
                               + "age limit : " + str(center.ageLimit) + "\n"
                               + "Date : " + str(center.date) + "\n")
         else:
-            telegram_bot_sendtext("No vaccine available at center "+ center.name)
+            telegram_bot_sendtext("No vaccine available at center " + center.name)
 
     #for sending telegram notification
     #test = telegram_bot_sendtext("Hi Ashit ")
