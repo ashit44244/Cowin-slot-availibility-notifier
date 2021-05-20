@@ -5,6 +5,8 @@ from datetime import datetime
 from telegram_bot_test_env import *
 from fake_useragent import UserAgent
 from CenterDetails import CenterInfo
+import schedule
+import time
 
 
 def cowinApiCall():
@@ -68,8 +70,8 @@ def cowinApiCall():
                               + "pincode : " + str(center.pincode) + "\n"
                               + "fee type : " + str(center.feeType) + "\n"
                               + "available capacity : " + str(center.capacity) + "\n"
-                              + "Dose1 : " + str(center.dose1) + "\n"
-                              + "Dose2 : " + str(center.dose2) + "\n"
+                              + "available Dose1 : " + str(center.dose1) + "\n"
+                              + "available Dose2 : " + str(center.dose2) + "\n"
                               + "vaccine : " + str(center.vaccine) + "\n"
                               + "age limit : " + str(center.ageLimit) + "\n"
                               + "Date : " + str(center.date) + "\n")
@@ -82,4 +84,10 @@ def cowinApiCall():
 
 
 
-cowinApiCall()
+#cowinApiCall()
+
+schedule.every(5).seconds.do(cowinApiCall)
+
+while True:
+    schedule.run_pending()
+    time.sleep(1)

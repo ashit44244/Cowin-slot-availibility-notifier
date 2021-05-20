@@ -5,6 +5,8 @@ from datetime import datetime
 from telegram_bot_rest_call_bot import *
 from fake_useragent import UserAgent
 from CenterDetails import CenterInfo
+import schedule
+import time
 
 
 def cowinApiCall():
@@ -44,14 +46,14 @@ def cowinApiCall():
             #print("No available centers on ", systemDate)
 
     for center in centerList:
-        if center.capacity != 0:
+        if center.capacity > 0:
             telegram_bot_sendtext("Center : " + center.name + "\n"
                               + "Block : " + center.blockName + "\n"
                               + "pincode : " + str(center.pincode) + "\n"
                               + "fee type : " + str(center.feeType) + "\n"
                               + "available capacity : " + str(center.capacity) + "\n"
-                              + "Dose1 : " + str(center.dose1) + "\n"
-                              + "Dose2 : " + str(center.dose2) + "\n"
+                              + "available Dose1 : " + str(center.dose1) + "\n"
+                              + "available Dose2 : " + str(center.dose2) + "\n"
                               + "vaccine : " + str(center.vaccine) + "\n"
                               + "age limit : " + str(center.ageLimit) + "\n"
                               + "Date : " + str(center.date) + "\n")
@@ -59,3 +61,10 @@ def cowinApiCall():
             #telegram_bot_sendtext("No vaccine available at center "+ center.name)
 
 cowinApiCall()
+
+
+schedule.every(5).seconds.do(cowinApiCall)
+
+while True:
+    schedule.run_pending()
+    time.sleep(1)
