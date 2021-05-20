@@ -49,7 +49,7 @@ def cowinApiCall():
                         if(session["vaccine"] != ''):
                             print("\t Vaccine: ", session["vaccine"])
                             vaccine = session["vaccine"]
-                        print("\n\n")
+                        print("\n")
                         centerList.append(CenterInfo(name, block, pincode, feeType, capacity, dose1, dose2, vaccine))
         else:
             print("No available slots on ", systemDate)
@@ -57,7 +57,10 @@ def cowinApiCall():
         json_text = json.loads(response.text)
 
     print(centerList)
-    # for sending telegram notification
+
+
+
+    #for sending telegram notification
     #test = telegram_bot_sendtext("Hi Ashit ")
     #print(test)
 

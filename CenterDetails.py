@@ -1,4 +1,4 @@
-class CenterDetails():
+class CenterInfo():
     def __init__(self, name = None, blockname = None, pincode = None,  feeType = None,
      capacity = None, dose1 = None, dose2 = None, vaccine = None, ageLimit = None, date = None):
        self.name = name
@@ -25,5 +25,5 @@ class CenterDetails():
         print("age limit: " , self.ageLimit)
         print("date:" , self.date)
 
-CenterDetails = CenterDetails("R C Pura UPHC", "blockname", "", "paid", 100 , 20,30, "Covaccine", 18, "19-05-2021")
-CenterDetails.output()
+#centerInfo = CenterInfo("R C Pura UPHC", "blockname", "", "paid", 100 , 20,30, "Covaccine", 18, "19-05-2021")
+#centerInfo.output()
