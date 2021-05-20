@@ -1,7 +1,8 @@
+#!/usr/bin/env python3
 import requests
 import json
 from datetime import datetime
-from telegram_bot_rest_call_bot import *
+from telegram_bot_test_env import *
 from fake_useragent import UserAgent
 from CenterDetails import CenterInfo
 
@@ -49,16 +50,31 @@ def cowinApiCall():
                         if(session["vaccine"] != ''):
                             print("\t Vaccine: ", session["vaccine"])
                             vaccine = session["vaccine"]
-                        print("\n")
-                        centerList.append(CenterInfo(name, block, pincode, feeType, capacity, dose1, dose2, vaccine))
+                        print("\t min age limit : ",
+                              session["min_age_limit"])
+                        print("\t date: ",
+                              session["date"])
+                        ageLimit = session["min_age_limit"]
+                        date = session["date"]
+                        print("----------------------------------- \n\n ")
+                        centerList.append(CenterInfo(name, block, pincode, feeType, capacity, dose1, dose2, vaccine,ageLimit, date))
         else:
-            print("No available slots on ", systemDate)
+            print("No available centers on ", systemDate)
 
-        json_text = json.loads(response.text)
-
-    print(centerList)
-
-
+    for center in centerList:
+        if center.capacity > 0:
+            telegram_bot_sendtext("Center : " + center.name + "\n"
+                              + "Block : " + center.blockName + "\n"
+                              + "pincode : " + str(center.pincode) + "\n"
+                              + "fee type : " + str(center.feeType) + "\n"
+                              + "available capacity : " + str(center.capacity) + "\n"
+                              + "Dose1 : " + str(center.dose1) + "\n"
+                              + "Dose2 : " + str(center.dose2) + "\n"
+                              + "vaccine : " + str(center.vaccine) + "\n"
+                              + "age limit : " + str(center.ageLimit) + "\n"
+                              + "Date : " + str(center.date) + "\n")
+        else:
+            telegram_bot_sendtext("No vaccine available at center "+ center.name)
 
     #for sending telegram notification
     #test = telegram_bot_sendtext("Hi Ashit ")

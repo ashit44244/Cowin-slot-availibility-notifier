@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 class CenterInfo():
     def __init__(self, name = None, blockname = None, pincode = None,  feeType = None,
      capacity = None, dose1 = None, dose2 = None, vaccine = None, ageLimit = None, date = None):
@@ -24,6 +25,7 @@ class CenterInfo():
         print("vaccine: " , self.vaccine)
         print("age limit: " , self.ageLimit)
         print("date:" , self.date)
+        print("\n")
 
 #centerInfo = CenterInfo("R C Pura UPHC", "blockname", "", "paid", 100 , 20,30, "Covaccine", 18, "19-05-2021")
 #centerInfo.output()
