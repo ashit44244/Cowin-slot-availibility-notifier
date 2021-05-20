@@ -3,15 +3,16 @@ import json
 from datetime import datetime
 from telegram_bot_rest_call_bot import *
 from fake_useragent import UserAgent
+from CenterDetails import CenterInfo
+
 
 def cowinApiCall():
     temp_user_agent = UserAgent()
     browser_header = {'User-Agent': temp_user_agent.random}
-
-
     systemDate = datetime.today().strftime('%d-%m-%Y')
     district_id = 294  # 294- BBMP
     age = 32
+    centerList = []
 
     getStatesListUrl = "https://cdn-api.co-vin.in/api/v2/admin/location/states"
     calendarByDistrictUrl = "https://cdn-api.co-vin.in/api/v2/appointment/sessions/calendarByDistrict"
@@ -20,8 +21,6 @@ def cowinApiCall():
 
     response = requests.get(calendarByDistrictUrl,
                             headers=browser_header, params=queryparam)
-
-
     print(response)
     if response.ok:
         resp_json = response.json()
@@ -31,6 +30,13 @@ def cowinApiCall():
             for center in resp_json["centers"]:
                 for session in center["sessions"]:
                     if session["min_age_limit"] <= age:
+                        name = center["name"]
+                        block = center["block_name"]
+                        pincode = center["pincode"]
+                        feeType = center["fee_type"]
+                        capacity = session["available_capacity"]
+                        dose1 = session["available_capacity_dose1"]
+                        dose2 = session["available_capacity_dose2"]
                         print("\t", center["name"])
                         print("\t", center["block_name"])
                         print("\t Price: ", center["fee_type"])
@@ -42,15 +48,19 @@ def cowinApiCall():
                             session["available_capacity_dose2"])
                         if(session["vaccine"] != ''):
                             print("\t Vaccine: ", session["vaccine"])
+                            vaccine = session["vaccine"]
                         print("\n\n")
-
+                        centerList.append(CenterInfo(name, block, pincode, feeType, capacity, dose1, dose2, vaccine))
         else:
             print("No available slots on ", systemDate)
 
         json_text = json.loads(response.text)
 
-    # print(json_text["centers"])
-    test = telegram_bot_sendtext("Hi Ashit ")
-    print(test)
+    print(centerList)
+    # for sending telegram notification
+    #test = telegram_bot_sendtext("Hi Ashit ")
+    #print(test)
+
+
 
 cowinApiCall()
