@@ -81,38 +81,43 @@ def cowinApiCall():
                 telegram_bot_sendtext("Center : " + center.name + "\n"
                                 + "Block : " + center.blockName + "\n"
                                 + "pincode : " + str(center.pincode) + "\n"
-                                + "fee type : " + str(center.feeType) + "\n"
                                 + "available capacity : " + str(center.capacity) + "\n"
                                 + "available Dose1 : " + str(center.dose1) + "\n"
                                 + "available Dose2 : " + str(center.dose2) + "\n"
                                 + "vaccine : " + str(center.vaccine) + "\n"
-                                + "age limit : " + str(center.ageLimit) + "\n"
+                                + "age limit : " + str(center.ageLimit) + " to 44 " + "\n"
                                 + "Date : " + str(center.date) + "\n")
-                session_id = center.sessionId
             else:
                 #telegram_bot_sendtext("No vaccine available at center "+ center.name)
                 logging.info("No vaccine available at center " + center.name)
-            
-            # updating the global center cache with the latest centre list
-            centerList_Global = centerList  
+        
+        centerList_Global = centerList
+        logging.info('---------------- END ------------------- \n\n ')
 
     except requests.ConnectionError as err:
         logging.error("Connection error : "+ err)
 
 def isCenterDetailsUpdated(center):
     global centerList_Global
+    logging.debug("inside isCenterDetailsUpdated: length of global centre list: "+str(len(centerList_Global)))
     if centerList_Global:
+        is_Updated = False
         for savedCenter in centerList_Global:
             #unique id for centername (center name + date)
-            savedId = savedCenter.name + savedCenter.date
-            centerId= center.name + center.date
-            logging.info("savedId: " + savedId + " centerId: " + centerId)
-            if savedId == centerId and savedCenter.sessionId != center.sessionId:
-                logging.info("ID Updated - send notification ")
-                return True
-            else:
-                logging.info("ID Not Updated- No notification ")
-                return False
+            savedId = savedCenter.name + "-" + savedCenter.date
+            centerId = center.name + "-" + center.date
+            if savedId == centerId:
+                logging.info("checking for center : " + centerId + " saved session id: "
+                             + savedCenter.sessionId + " current session id: " + center.sessionId)
+                if savedCenter.sessionId != center.sessionId:
+                    logging.info("ID Updated - send notification ")
+                    is_Updated = True
+                else:
+                    logging.info("ID Not Updated - No notification ")
+                    is_Updated = False
+        return  is_Updated
+    else:
+        return True
 
 cowinApiCall()
 
