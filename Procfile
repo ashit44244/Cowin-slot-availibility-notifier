@@ -1,1 +1,1 @@
-worker: python vaccine-availability-finder.py
+worker: python testheroku.py
