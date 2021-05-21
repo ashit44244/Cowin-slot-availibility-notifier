@@ -1,1 +1,1 @@
-worker: python testheroku.py
+worker: python vaccine-slot-finder-heroku.py
