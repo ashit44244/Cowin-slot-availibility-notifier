@@ -1,0 +1,1 @@
+worker: python vaccine-availability-finder.py
