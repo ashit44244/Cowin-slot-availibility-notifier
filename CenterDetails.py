@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 class CenterInfo():
     def __init__(self, name = None, blockname = None, pincode = None,  feeType = None,
-     capacity = None, dose1 = None, dose2 = None, vaccine = None, ageLimit = None, date = None):
+     capacity = None, dose1 = None, dose2 = None, sessionId = None, vaccine = None, ageLimit = None, date = None):
        self.name = name
        self.blockName = blockname
        self.pincode = pincode
@@ -9,6 +9,7 @@ class CenterInfo():
        self.capacity = capacity
        self.dose1 = dose1
        self.dose2 = dose2
+       self.sessionId = sessionId
        self.vaccine = vaccine
        self.ageLimit = ageLimit
        self.date = date
@@ -22,6 +23,7 @@ class CenterInfo():
         print("capacity: " , self.capacity)
         print("dose 1: " , self.dose1)
         print("dose 2: ",  self.dose2)
+        print("sessionId", self.sessionId)
         print("vaccine: " , self.vaccine)
         print("age limit: " , self.ageLimit)
         print("date:" , self.date)
