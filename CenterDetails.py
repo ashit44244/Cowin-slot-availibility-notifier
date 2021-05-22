@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+from typing import Type
+
+
 class CenterInfo():
     def __init__(self, name = None, blockname = None, pincode = None,  feeType = None,
      capacity = None, dose1 = None, dose2 = None, sessionId = None, vaccine = None, ageLimit = None, date = None):
@@ -28,6 +31,21 @@ class CenterInfo():
         print("age limit: " , self.ageLimit)
         print("date:" , self.date)
         print("\n")
+
+    def __eq__(self, other):
+        if isinstance(other, CenterInfo):
+
+            return self.name + self.sessionId == other.name + other.sessionId
+
+        return False
+
+    def __str__(self) -> str:
+        return super().__str__()
+
+    def __hash__(self) -> int:
+        return super().__hash__()
+
+
 
 #centerInfo = CenterInfo("R C Pura UPHC", "blockname", "", "paid", 100 , 20,30, "Covaccine", 18, "19-05-2021")
 #centerInfo.output()

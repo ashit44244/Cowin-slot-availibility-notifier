@@ -9,7 +9,7 @@ import schedule
 import time
 import logging
 
-logging.basicConfig(filename='myapp.log', format='%(asctime)s : %(levelname)s - %(message)s', level=logging.INFO,
+logging.basicConfig(filename='myapp-dev.log', format='%(asctime)s : %(levelname)s - %(message)s', level=logging.INFO,
                     datefmt='%m/%d/%Y %I:%M:%S %p')
 
 session_id = "none"
@@ -17,7 +17,7 @@ centerList_Global = []
 
 
 def cowinApiCall():
-    logging.info('-------------Started ---------------')
+    logging.info('-------xxxxxx------Started cowinApiCall ---------xxxxxxx------')
     temp_user_agent = UserAgent()
     browser_header = {'User-Agent': temp_user_agent.random}
     systemDate = datetime.today().strftime('%d-%m-%Y')
@@ -80,7 +80,7 @@ def cowinApiCall():
                 logging.info("No available centers on ", systemDate)
 
         for center in centerList:
-            if center.capacity > 0 and isCenterDetailsUpdated(center):
+            if isNotificationSent(center):
                 logging.info(' slots available - sending telegram notification:  center name : ' + str(center.name) +
                              ' sessionId: ' + str(center.sessionId))
                 telegram_bot_sendtext("Center : " + center.name + "\n"
@@ -92,42 +92,62 @@ def cowinApiCall():
                                       + "vaccine : " + str(center.vaccine) + "\n"
                                       + "age limit : " + str(center.ageLimit) + " to 44 " + "\n"
                                       + "Date : " + str(center.date) + "\n")
+                logging.info('-------------------------------------- \n\n ')
             else:
                 # telegram_bot_sendtext("No vaccine available at center " + center.name)
                 logging.info("No vaccine available at center " + center.name)
-        if centerList:
-            centerList_Global = centerList
-        logging.info('---------------- END ------------------- \n\n ')
+                logging.info('-------------------------------------- \n\n ')
 
-    except requests.ConnectionError as  err:
+        logging.info('-------xxxxxxxx--------- END of cowinApiCall ----------xxxxx--------- \n\n ')
+
+    except requests.RequestException as err:
         logging.error("Connection error : " + str(err))
 
 
-def isCenterDetailsUpdated(center):
+def isNotificationSent(center):
     global centerList_Global
-    logging.info("inside isCenterDetailsUpdated: length of global centre list: " + str(len(centerList_Global)))
+    sentNotification = False
+    logging.info("Start -- checking notification for centre:  " + center.name)
+    logging.info("len of global list: " + str(len(centerList_Global)))
     if centerList_Global:
-        is_Updated = False
-        for savedCenter in centerList_Global:
-            # unique id for center name (center name + date)
-            savedId = savedCenter.name + "-" + savedCenter.date
-            centerId = center.name + "-" + center.date
-            if savedId == centerId:
-                logging.info("checking for center : " + centerId + " saved session id: "
-                             + savedCenter.sessionId + " current session id: " + center.sessionId)
-                if savedCenter.sessionId != center.sessionId:
-                    logging.info("ID Updated - send notification ")
-                    is_Updated = True
-                else:
-                    logging.info("ID Not Updated - No notification ")
-                    is_Updated = False
-        return is_Updated
+        if any(gl.sessionId == center.sessionId for gl in centerList_Global):
+            logging.info(" center present in global list")
+            # global list contains center list
+            # chk capacity if latest capacity > 0 then don't update the global list  nor sent notification
+            if center.capacity > 0:
+                logging.info("center present in global list and capacity > 0 duplicate notification not required to be sent")
+                sentNotification = False
+            elif center.capacity == 0:
+                logging.info("center present in global list and capacity = 0 all slots booked , remove it from global list and wait for new slots to open")
+                logging.info("remove from global list: len before: " + str(len(centerList_Global)))
+                if center in centerList_Global:
+                    centerList_Global.remove(center)
+                    logging.info("remove from global list: len after: " + str(len(centerList_Global)))
+                    sentNotification = False
+        else:
+            # if not present in global list and capacity > 0 add in global list and send notification
+            if center.capacity > 0:
+                logging.info("Not present in global list and capacity > 0 add in global list and send notification")
+                centerList_Global.append(center)
+                sentNotification = True
+            else:
+                logging.info("Not present in global list and capacity = 0  No action required")
     else:
-        return True
+        # if global list is empty then send notification if capacity >0
+        if center.capacity > 0:
+            logging.info("global list is empty then send notification for capacity > 0")
+            sentNotification = True
+            centerList_Global.append(center)
+    logging.info("Notification for the centre :" + center.name + " is: " + str(sentNotification))
+    logging.info('-- End checking notification for centre: -------------' + center.name)
+    return sentNotification
+
 
 
 cowinApiCall()
 
+
+# scheduler to call cowin api after x sec
 schedule.every(15).seconds.do(cowinApiCall)
 
 while True:
