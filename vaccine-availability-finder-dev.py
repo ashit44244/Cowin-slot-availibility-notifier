@@ -31,7 +31,7 @@ def cowinApiCall():
     calendarByDistrictUrl = "https://cdn-api.co-vin.in/api/v2/appointment/sessions/calendarByDistrict"
 
     queryparam = {'district_id': district_id, 'date': systemDate}
-
+    if age <
     try:
         response = requests.get(calendarByDistrictUrl,
                                 headers=browser_header, params=queryparam)
