@@ -3,12 +3,15 @@
 This is just a proof of concept project, it cannot book a slot automatically.
 Public Cowin API details can be found here (https://apisetu.gov.in/public/marketplace/api/cowin/cowin-public-v2)
 
-Currently, it can send telegram notification of the slots availability in real time based on the ditrict_id and age provided, booking has to be done in the cowin portal only.
+Currently, it can send telegram notification of the slots availability based on the ditrict_id and age provided, booking has to be done in the cowin portal only.
 This tool just helps in getting notification as sonn as the slots get listed in the cowin portal. 
+
+# Note 
+
+Public APIs provided by CoWin app are currently not returning realtime slots. We strongly recommend you to visit https://selfregistration.cowin.gov.in to search & book directly.
+
 List of states and corresponding districts can be fetched from the public api respectively
-
 Grab the state id based on the state from the list of states : https://cdn-api.co-vin.in/api/v2/admin/location/states
-
 Get the district ids based on the district by passing the state id in the placeholder : https://cdn-api.co-vin.in/api/v2/admin/location/districts/{state_id}
 
 ## Setup
