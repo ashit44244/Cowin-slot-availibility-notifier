@@ -8,21 +8,28 @@ from CenterDetails import CenterInfo
 import schedule
 import time
 import logging
+import argparse
 
 logging.basicConfig(filename='myapp-dev.log', format='%(asctime)s : %(levelname)s - %(message)s', level=logging.INFO,
                     datefmt='%m/%d/%Y %I:%M:%S %p')
+
+parser = argparse.ArgumentParser()
+parser.add_argument("district_id", type=int)
+parser.add_argument("age", type=int)
+args = parser.parse_args()
 
 session_id = "none"
 centerList_Global = []
 
 
-def cowinApiCall():
-    logging.info('-------xxxxxx------Started cowinApiCall ---------xxxxxxx------')
+def cowinApiCall(district_id, age):
+    age_group = "18 to 44" if age < 45 else "above 45"
+    logging.info('-------xxxxxx------Started cowinApiCall ---------xxxxxxx------ for district id '
+                 + str(district_id) + ' and age group ' + age_group)
     temp_user_agent = UserAgent()
     browser_header = {'User-Agent': temp_user_agent.random}
     systemDate = datetime.today().strftime('%d-%m-%Y')
     district_id = 294  # 294- BBMP
-    age = 32
     centerList = []
     global session_id
     global centerList_Global
@@ -31,7 +38,6 @@ def cowinApiCall():
     calendarByDistrictUrl = "https://cdn-api.co-vin.in/api/v2/appointment/sessions/calendarByDistrict"
 
     queryparam = {'district_id': district_id, 'date': systemDate}
-    if age <
     try:
         response = requests.get(calendarByDistrictUrl,
                                 headers=browser_header, params=queryparam)
@@ -40,7 +46,7 @@ def cowinApiCall():
             resp_json = response.json()
             if resp_json["centers"]:
                 logging.info('Available on: ' + str(systemDate) +
-                             ' for 18-45 age group ,user age: ' + str(age))
+                             ' for ' + age_group + ' age group ,user age: ' + str(age))
                 for center in resp_json["centers"]:
                     for session in center["sessions"]:
                         if session["min_age_limit"] <= age:
@@ -90,7 +96,7 @@ def cowinApiCall():
                                       + "available Dose1 : " + str(center.dose1) + "\n"
                                       + "available Dose2 : " + str(center.dose2) + "\n"
                                       + "vaccine : " + str(center.vaccine) + "\n"
-                                      + "age limit : " + str(center.ageLimit) + " to 44 " + "\n"
+                                      + "age limit : " + str(age_group) + "\n"
                                       + "Date : " + str(center.date) + "\n")
                 logging.info('-------------------------------------- \n\n ')
             else:
@@ -169,10 +175,10 @@ def updateCapacity(center):
             savedCenter.capacity = center.capacity
 
 
-cowinApiCall()
+cowinApiCall(args.district_id, args.age)
 
 # scheduler to call cowin api after x sec
-schedule.every(15).seconds.do(cowinApiCall)
+schedule.every(15).seconds.do(cowinApiCall, args.district_id, args.age)
 
 while True:
     schedule.run_pending()
