@@ -1,5 +1,16 @@
 # Cowin-slot-availibility-notifier
 
+This is just a proof of concept project, it cannot book a slot automatically.
+Public Cowin API details can be found here (https://apisetu.gov.in/public/marketplace/api/cowin/cowin-public-v2)
+
+Currently, it can send telegram notification of the slots availability in real time based on the ditrict_id and age provided, booking has to be done in the cowin portal only.
+This tool just helps in getting notification as sonn as the slots get listed in the cowin portal. 
+List of states and corresponding districts can be fetched from the public api respectively
+
+Grab the state id based on the state from the list of states : https://cdn-api.co-vin.in/api/v2/admin/location/states
+
+Get the district ids based on the district by passing the state id in the placeholder : https://cdn-api.co-vin.in/api/v2/admin/location/districts/{state_id}
+
 ## Setup
 
 The first thing to do is to clone the repository:
@@ -25,7 +36,8 @@ example: python vaccine-availability-finder.py 294 32
 
 
 ```
-##Prerequisite:
+## Prerequisite:
+
 Join the telegram public channel : cowin U45 Bangalore (https://t.me/cowinU45Bangalorearea) to receive the notification as soon as the slots are available
 Once the application is started, user will start receiving notification in the above telegram channel.
 
