@@ -25,12 +25,12 @@ centerList_Global = []
 
 def cowinApiCall(district_id, age):
     age_group = "18 to 44" if age < 45 else "above 45"
-    logging.info('-------xxxxxx------Started cowinApiCall ---------xxxxxxx------ for district id '
+    logging.info('----------Started cowinApiCall ----------- for district id '
                  + str(district_id) + ' and age group ' + age_group)
     temp_user_agent = UserAgent()
     browser_header = {'User-Agent': temp_user_agent.random}
     systemDate = datetime.today().strftime('%d-%m-%Y')
-    district_id = 294  # 294- BBMP
+    #district_id = 294  # 294- BBMP
     centerList = []
     global session_id
     global centerList_Global
@@ -46,7 +46,7 @@ def cowinApiCall(district_id, age):
         if response.ok:
             resp_json = response.json()
             if resp_json["centers"]:
-                logging.info('Available on: ' + str(systemDate) +
+                logging.debug('Available on: ' + str(systemDate) +
                              ' for ' + age_group + ' age group ,user age: ' + str(age))
                 for center in resp_json["centers"]:
                     for session in center["sessions"]:
@@ -58,33 +58,33 @@ def cowinApiCall(district_id, age):
                             capacity = session["available_capacity"]
                             dose1 = session["available_capacity_dose1"]
                             dose2 = session["available_capacity_dose2"]
-                            logging.info('\t ' + center["name"])
-                            logging.info('\t ' + center["block_name"])
-                            logging.info('\t Price: ' + center["fee_type"])
-                            logging.info('\t Available Capacity: ' +
+                            logging.debug('\t ' + center["name"])
+                            logging.debug('\t ' + center["block_name"])
+                            logging.debug('\t Price: ' + center["fee_type"])
+                            logging.debug('\t Available Capacity: ' +
                                          str(session["available_capacity"]))
-                            logging.info('\t Available Dose 1: ' +
+                            logging.debug('\t Available Dose 1: ' +
                                          str(session["available_capacity_dose1"]))
-                            logging.info('\t Available Dose 2: ' +
+                            logging.debug('\t Available Dose 2: ' +
                                          str(session["available_capacity_dose2"]))
                             sessionId = session["session_id"]
-                            logging.info('\t session ID : ' +
+                            logging.debug('\t session ID : ' +
                                          str(session["session_id"]))
                             if (session["vaccine"] != ''):
-                                logging.info('\t Vaccine: ' + session["vaccine"])
+                                logging.debug('\t Vaccine: ' + session["vaccine"])
                                 vaccine = session["vaccine"]
-                            logging.info('\t min age limit : ' +
+                            logging.debug('\t min age limit : ' +
                                          str(session["min_age_limit"]))
-                            logging.info('\t date: ' +
+                            logging.debug('\t date: ' +
                                          str(session["date"]))
                             ageLimit = session["min_age_limit"]
                             date = session["date"]
-                            logging.info('----------------------------------- \n\n ')
+                            logging.debug('----------------------------------- \n\n ')
                             centerList.append(
                                 CenterInfo(name, block, pincode, feeType, capacity, dose1, dose2, sessionId, vaccine,
                                            ageLimit, date))
             else:
-                logging.info("No available centers on ", systemDate)
+                logging.debug("No available centers on ", systemDate)
 
         for center in centerList:
             if isNotificationSent(center):
@@ -102,10 +102,10 @@ def cowinApiCall(district_id, age):
                 logging.info('-------------------------------------- \n\n ')
             else:
                 # telegram_bot_sendtext("No vaccine available at center " + center.name)
-                logging.info("No vaccine available at center " + center.name)
-                logging.info('-------------------------------------- \n\n ')
+                logging.debug("No vaccine available at center " + center.name)
+                logging.debug('-------------------------------------- \n\n ')
 
-        logging.info('-------xxxxxxxx--------- END of cowinApiCall ----------xxxxx--------- \n\n ')
+        logging.debug('-------xxxxxxxx--------- END of cowinApiCall ----------xxxxx--------- \n\n ')
 
     except requests.exceptions.HTTPError as errh:
         logging.info("Http Error:", str(errh))
@@ -120,13 +120,14 @@ def cowinApiCall(district_id, age):
 def isNotificationSent(center):
     global centerList_Global
     sentNotification = False
-    logging.info("Start -- for centre:  " + center.name + " for date : " + str(center.date))
-    logging.info("centerList_Global size: " + str(len(centerList_Global)))
+    logging.info("Start -- for centre:  " + center.name +
+                 " for date : " + str(center.date) + "session id:" + center.sessionId)
+    logging.debug("centerList_Global size: " + str(len(centerList_Global)))
     if centerList_Global:
         if center in centerList_Global:
             # if any(gl.sessionId == center.sessionId for gl in centerList_Global):
             saved_elements = getSavedCenter(center)
-            logging.info(" center present in global list: saved capacity : "
+            logging.debug(" center present in global list: saved capacity : "
                          + str(saved_elements.capacity) + " center capacity : " + str(center.capacity))
             # global list contains center list
             # chk capacity if latest capacity > 0 then don't update the global list  nor sent notification
@@ -135,28 +136,28 @@ def isNotificationSent(center):
                     logging.info("center capacity increased - Send Notification: updated global list")
                     updateCapacity(center)
                     sentNotification = True
-                    logging.info("centerList_Global size after updation : " + str(len(centerList_Global)))
+                    logging.debug("centerList_Global size after updation : " + str(len(centerList_Global)))
                 else:
-                    logging.info("new capacity not added - No Notification send ")
+                    logging.debug("new capacity not added - No Notification send ")
                     sentNotification = False
             elif center.capacity == 0:
-                logging.info("capacity is 0 all slots booked , remove it from global list and wait for new slots")
-                logging.info("remove from global list: len before: " + str(len(centerList_Global)))
+                logging.debug("capacity is 0 all slots booked , remove it from global list and wait for new slots")
+                logging.debug("remove from global list: len before: " + str(len(centerList_Global)))
                 centerList_Global.remove(center)
-                logging.info("remove from global list: len after: " + str(len(centerList_Global)))
+                logging.debug("remove from global list: len after: " + str(len(centerList_Global)))
                 sentNotification = False
         else:
             # if not present in global list and capacity > 0 add in global list and send notification
             if center.capacity > 0:
-                logging.info("Not present in global list and capacity > 0 add in global list and send notification")
+                logging.debug("Not present in global list and capacity > 0 add in global list and send notification")
                 centerList_Global.append(center)
                 sentNotification = True
             else:
-                logging.info("Not present in global list and capacity is 0 No action required")
+                logging.debug("Not present in global list and capacity is 0 No action required")
     else:
         # if global list is empty then send notification if capacity >0
         if center.capacity > 0:
-            logging.info("global list is empty then send notification for capacity > 0")
+            logging.debug("global list is empty then send notification for capacity > 0")
             sentNotification = True
             centerList_Global.append(center)
     logging.info("Notification for the centre :" + center.name + " is: " + str(sentNotification))
