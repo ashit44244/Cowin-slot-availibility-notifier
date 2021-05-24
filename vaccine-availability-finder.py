@@ -2,8 +2,8 @@
 import requests
 import json
 from datetime import datetime
-from telegram_bot_rest_call_bot import *
-#from telegram_bot_test_env import *
+#from telegram_bot_rest_call_bot import *
+from telegram_bot_test_env import *
 from fake_useragent import UserAgent
 from CenterDetails import CenterInfo
 import schedule
@@ -179,7 +179,7 @@ def updateCapacity(center):
 cowinApiCall(args.district_id, args.age)
 
 # scheduler to call cowin api after x sec
-schedule.every(15).seconds.do(cowinApiCall, args.district_id, args.age)
+schedule.every(5).seconds.do(cowinApiCall, args.district_id, args.age)
 
 
 while True:

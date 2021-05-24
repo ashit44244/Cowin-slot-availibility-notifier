@@ -23,8 +23,28 @@ $ python vaccine-availability-finder.py {district_id} {age}
 
 example: python vaccine-availability-finder.py 294 32 
 
+
 ```
-Prerequisite: Join the telegram public channel : cowin U45 Bangalore (https://t.me/cowinU45Bangalorearea) to receive the notification as soon as the slots are available
+##Prerequisite:
+Join the telegram public channel : cowin U45 Bangalore (https://t.me/cowinU45Bangalorearea) to receive the notification as soon as the slots are available
 Once the application is started, user will start receiving notification in the above telegram channel.
+
+
+## Testing
+
+For Testing, it's recommended to use vaccine-availability-finder-dev.py : join telegram channel : cowin U45 Blore-Dev and start contributing
+
+
+
+
+
+### Python 3.7.3 Installation in Windows
+- Check if Python is already installed by opening command prompt and running ```python --version```.
+- If the above command returns ```Python <some-version-number>``` you're probably good - provided version number is above 3.6
+- If Python's not installed, command would say something like: ```'python' is not recognized as an internal or external command, operable program or batch file.```
+- If so, download the installer from: https://www.python.org/ftp/python/3.7.3/python-3.7.3-amd64.exe
+- Run that. In the first screen of installer, there will be an option at the bottom to "Add Python 3.7 to Path". Make sure to select it.
+- Open command prompt and run ```python --version```. If everything went well it should say ```Python 3.7.3```
+- You're all set! 
 
 [![license](https://img.shields.io/github/license/DAVFoundation/captain-n3m0.svg?style=flat-square)](https://github.com/DAVFoundation/captain-n3m0/blob/master/LICENSE)
