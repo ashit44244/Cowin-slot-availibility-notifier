@@ -26,3 +26,5 @@ example: python vaccine-availability-finder.py 294 32
 ```
 Prerequisite: Join the telegram public channel : cowin U45 Bangalore (https://t.me/cowinU45Bangalorearea) to receive the notification as soon as the slots are available
 Once the application is started, user will start receiving notification in the above telegram channel.
+
+[![license](https://img.shields.io/github/license/DAVFoundation/captain-n3m0.svg?style=flat-square)](https://github.com/DAVFoundation/captain-n3m0/blob/master/LICENSE)
