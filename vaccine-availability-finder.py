@@ -90,7 +90,7 @@ def cowinApiCall(district_id, age, chatId):
                 logging.debug("No available centers on ", systemDate)
 
         for center in centerList:
-            if isNotificationSent(center):
+            if isNotificationRequired(center):
                 logging.info(' slots available - sending telegram msg:  center name : ' + str(center.name) +
                              ' sessionId: ' + str(center.sessionId))
                 telegram_bot_sendtext("Center : " + center.name + "\n"
@@ -101,7 +101,7 @@ def cowinApiCall(district_id, age, chatId):
                                       + "available Dose2 : " + str(center.dose2) + "\n"
                                       + "vaccine : " + str(center.vaccine) + "\n"
                                       + "age limit : " + str(age_group) + "\n"
-                                      + "Date : " + str(center.date) + "\n")
+                                      + "Date : " + str(center.date) + "\n", str(channel_chatId))
                 logging.info('-------------------------------------- \n\n ')
             else:
                 # telegram_bot_sendtext("No vaccine available at center " + center.name)
@@ -126,7 +126,7 @@ def cowinApiCall(district_id, age, chatId):
         logging.info("OOps: Something Else", str(err))
 
 
-def isNotificationSent(center):
+def isNotificationRequired(center):
     global centerList_Global
     sentNotification = False
     logging.info("Start -- for centre:  " + center.name +
