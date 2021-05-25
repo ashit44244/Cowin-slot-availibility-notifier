@@ -68,7 +68,8 @@ Step 3: Grab the chat id for your channel as shown above. Now you are ready to r
 
 $ python vaccine-availability-finder.py {district_id} {age} {channel_chat_id}
 
-example: python vaccine-availability-finder.py 363 32 --1001463113416
+example:
+python vaccine-availability-finder.py 363 32 --chatId -1001463113416
 -1001463113416 is the chat if for cowin U45 Pune telegram channel
 
 
@@ -92,8 +93,9 @@ For Testing, it's recommended to use vaccine-availability-finder-dev.py : join t
 
 $ python vaccine-availability-finder.py {district_id} {age}
 
-example: python vaccine-availability-finder.py 363 32
--1001172971393 is the chat if for cowin U45 Blore-Dev telegram channel
+example:
+python vaccine-availability-finder.py 363 32 --chatId -1001172971393 
+-1001172971393 is the chat Id for cowin U45 Blore-Dev telegram channel
 
 
 ```
