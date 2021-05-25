@@ -61,8 +61,8 @@ Step 5: Grab the district id for your region example: For pune it's 363
 
 ## How to provide age parameter
 As per current guidelines from government vaccine availability comes in 2 category based on age group  
-1. 18 - 44 age (enter any age b/w 18 & 44)
-2. 45+ age (enter any age above 44)
+1. 18 - 44 group
+2. 45+ age group
 
 bot will run for any one of these age group only. for any age below 45 bot will run for 18-45 age group and any age above 45 bot will run for 45+ age group. Please see example below to understand more.
 
