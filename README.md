@@ -17,7 +17,7 @@ The first thing to do is to clone the repository:
 
 ```sh
 $ git clone https://github.com/ashit44244/Cowin-slot-availibility-notifier.git
-$ cd Cowin
+$ cd Cowin-slot-availibility-notifier
 ```
 
 install the dependencies:

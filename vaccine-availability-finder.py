@@ -2,8 +2,8 @@
 import requests
 import json
 from datetime import datetime
-#from telegram_bot_rest_call_bot import *
-from telegram_bot_test_env import *
+from telegram_bot_rest_call_bot import *
+#from telegram_bot_test_env import *
 from fake_useragent import UserAgent
 from CenterDetails import CenterInfo
 import schedule
@@ -15,18 +15,21 @@ logging.basicConfig(filename='myapp-prod.log', format='%(asctime)s : %(levelname
                     datefmt='%m/%d/%Y %I:%M:%S %p')
 
 parser = argparse.ArgumentParser()
-parser.add_argument("district_id", type=int)
-parser.add_argument("age", type=int)
+parser.add_argument("district_id", type=int, help='an integer for district id ')
+parser.add_argument("age", type=int, help='an integer for the user age')
+parser.add_argument("--chatId", type=int, help='an optional integer for the telegram chat id ')
 args = parser.parse_args()
 
 session_id = "none"
 centerList_Global = []
 
 
-def cowinApiCall(district_id, age):
+def cowinApiCall(district_id, age, chatId):
     age_group = "18 to 44" if age < 45 else "above 45"
-    logging.info('----------Started cowinApiCall ----------- for district id '
-                 + str(district_id) + ' and age group ' + age_group)
+    # default chatId (-1001172971393) - cowin U45 Blore-Dev if chatID is not provided
+    channel_chatId = "-1001172971393" if chatId is None else chatId
+    logging.info('-------xxxxxx------Started cowinApiCall ---------xxxxxxx------ for district id '
+                 + str(district_id) + ' and age group ' + age_group + "  chat id : " + str(channel_chatId))
     temp_user_agent = UserAgent()
     browser_header = {'User-Agent': temp_user_agent.random}
     systemDate = datetime.today().strftime('%d-%m-%Y')
@@ -41,7 +44,7 @@ def cowinApiCall(district_id, age):
     queryparam = {'district_id': district_id, 'date': systemDate}
     try:
         response = requests.get(calendarByDistrictUrl,
-                                headers=browser_header, params=queryparam)
+                                headers=browser_header, params=queryparam, timeout=4)
         logging.info('response: ' + str(response))
         if response.ok:
             resp_json = response.json()
@@ -109,7 +112,13 @@ def cowinApiCall(district_id, age):
 
     except requests.exceptions.HTTPError as errh:
         logging.info("Http Error:", str(errh))
-    except requests.exceptions.ConnectionError as errc:
+    except (
+            requests.ConnectionError,
+            requests.exceptions.ConnectionError,
+            requests.exceptions.ReadTimeout,
+            requests.exceptions.Timeout,
+            requests.exceptions.ConnectTimeout
+        ) as errc:
         logging.info("Error Connecting:", str(errc))
     except requests.exceptions.Timeout as errt:
         logging.info("Timeout Error:", str(errt))
@@ -177,11 +186,10 @@ def updateCapacity(center):
             savedCenter.capacity = center.capacity
 
 
-cowinApiCall(args.district_id, args.age)
+cowinApiCall(args.district_id, args.age, args.chatId)
 
 # scheduler to call cowin api after x sec
-schedule.every(5).seconds.do(cowinApiCall, args.district_id, args.age)
-
+schedule.every(5).seconds.do(cowinApiCall, args.district_id, args.age, args.chatId)
 
 while True:
     schedule.run_pending()
