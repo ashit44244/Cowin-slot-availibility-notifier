@@ -33,17 +33,20 @@ Default chat is for cowin U45 Blore-Dev.
 ## Find district id for your area
 
 Step 1: Hit the api in browser: https://cdn-api.co-vin.in/api/v2/admin/location/states
+
 Step 2: It will show the list of all states along with the state id as shown below:
+
 ![state-list](img/states.PNG?raw=true)
 
 Step 3: Grab the state id for your state.
-Step 4: Hit the api in browser as shown below: https://cdn-api.co-vin.in/api/v2/admin/location/districts/{state_id}
 
-Example: Get all district in maharashtra :  https://cdn-api.co-vin.in/api/v2/admin/location/districts/21
+Step 4: hit the api in browser as shown below: https://cdn-api.co-vin.in/api/v2/admin/location/districts/{state_id}
+
+example: Get all district in maharashtra :  https://cdn-api.co-vin.in/api/v2/admin/location/districts/21
 
 ![state-list](img/district.PNG?raw=true)
 
-Step 4: Grab the district id for your region example: For pune it's 363
+Step 5: Grab the district id for your region example: For pune it's 363
 
 ## New Telegram channel for your Region
 
@@ -51,25 +54,26 @@ Step 1: Create a new channel like cowin U45 {region name}. Once channel is creat
 to the channel and make it as admin.
 
 ![telegram_channel-1](img/telegram-1.PNG?raw=true)
+
 ![telegram_channel-2](img/telegram-2.PNG?raw=true)
+
 ![telegram_channel-3](img/telegram-3.PNG?raw=true)
+
 ![telegram_channel-4](img/telegram-4.PNG?raw=true)
 
-Step 2: Hit the api in browser - https://api.telegram.org/bot1755134661:AAE4ysHFi75lUqF2o2H_Fs3Or3jHDlfKUjM/getUpdates
+Step 2: hit the api in browser - https://api.telegram.org/bot1755134661:AAE4ysHFi75lUqF2o2H_Fs3Or3jHDlfKUjM/getUpdates
  and search for your channel in the result as shown below, 
 
 ![getUpdates api](img/get_updates_api.PNG?raw=true)
 
 Step 3: Grab the chat id for your channel as shown above. Now you are ready to run the worker
 
-
-
 ```sh
 
-$ python vaccine-availability-finder.py {district_id} {age} {channel_chat_id}
+$ python vaccine-availability-finder.py {district_id} {age} --chatId {channel_chat_id}
 
 example:
-python vaccine-availability-finder.py 363 32 --chatId -1001463113416
+$ python vaccine-availability-finder.py 363 32 --chatId -1001463113416
 -1001463113416 is the chat if for cowin U45 Pune telegram channel
 
 
@@ -84,25 +88,20 @@ Worker for Telegram channel is handled by me, and it's fully functional.
 Join the telegram public channel : cowin U45 Bangalore (https://t.me/cowinU45Bangalorearea) to receive the notification as soon as the slots are available
 Once the application is started, user will start receiving notification in the above telegram channel.
 
-
 ## Testing
 
 For Testing, it's recommended to use vaccine-availability-finder-dev.py : join telegram channel : cowin U45 Blore-Dev and start contributing
 
 ```sh
 
-$ python vaccine-availability-finder.py {district_id} {age}
+$ python vaccine-availability-finder-dev.py {district_id} {age} --chatId {channel_chat_id}
 
 example:
-python vaccine-availability-finder.py 363 32 --chatId -1001172971393 
+python vaccine-availability-finder-dev.py 363 32 --chatId -1001172971393 
 -1001172971393 is the chat Id for cowin U45 Blore-Dev telegram channel
 
 
 ```
-
-#### drop me message on telegram for any support or help: @ashit44244(https://t.me/ashit44244)
-
-
 ## Prerequisite:
 ### Python 3.7.3 Installation in Windows
 - Check if Python is already installed by opening command prompt and running ```python --version```.
@@ -112,5 +111,8 @@ python vaccine-availability-finder.py 363 32 --chatId -1001172971393
 - Run that. In the first screen of installer, there will be an option at the bottom to "Add Python 3.7 to Path". Make sure to select it.
 - Open command prompt and run ```python --version```. If everything went well it should say ```Python 3.7.3```
 - You're all set! 
+
+#### drop me message on telegram for any support or help: @ashit44244(https://t.me/ashit44244)
+
 
 [![license](https://img.shields.io/github/license/DAVFoundation/captain-n3m0.svg?style=flat-square)](https://github.com/DAVFoundation/captain-n3m0/blob/master/LICENSE)
