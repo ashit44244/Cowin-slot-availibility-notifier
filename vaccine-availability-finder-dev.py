@@ -47,7 +47,7 @@ def cowinApiCall(district_id, age, chatId):
         logging.info('response: ' + str(response))
         if response.ok:
             resp_json = response.json()
-            if resp_json["centers"]:
+            if 'centers' in resp_json:
                 logging.info('Available on: ' + str(systemDate) +
                              ' for ' + age_group + ' age group ,user age: ' + str(age))
                 for center in resp_json["centers"]:
@@ -86,27 +86,28 @@ def cowinApiCall(district_id, age, chatId):
                                 CenterInfo(name, block, pincode, feeType, capacity, dose1, dose2, sessionId, vaccine,
                                            ageLimit, date))
             else:
-                logging.info("No available centers on ", systemDate)
-
-        for center in centerList:
-            if isNotificationRequired(center):
-                logging.info(' slots available - sending telegram msg:  center name : ' + str(center.name) +
-                             ' sessionId: ' + str(center.sessionId))
-                telegram_bot_sendtext("Center : " + center.name + "\n"
-                                      + "Block : " + center.blockName + "\n"
-                                      + "pincode : " + str(center.pincode) + "\n"
-                                      + "available capacity : " + str(center.capacity) + "\n"
-                                      + "available Dose1 : " + str(center.dose1) + "\n"
-                                      + "available Dose2 : " + str(center.dose2) + "\n"
-                                      + "vaccine : " + str(center.vaccine) + "\n"
-                                      + "age limit : " + str(age_group) + "\n"
-                                      + "Date : " + str(center.date) + "\n", str(channel_chatId))
-                logging.info('-------------------------------------- \n\n ')
-            else:
-                # telegram_bot_sendtext("No vaccine available at center " + center.name)
-                logging.info("No vaccine available at center " + center.name)
-                logging.info('-------------------------------------- \n\n ')
-
+                logging.error("No available centers on ", systemDate)
+        if centerList:
+            for center in centerList:
+                if isNotificationRequired(center):
+                    logging.info(' slots available - sending telegram msg:  center name : ' + str(center.name) +
+                                 ' sessionId: ' + str(center.sessionId))
+                    telegram_bot_sendtext("Center : " + center.name + "\n"
+                                          + "Block : " + center.blockName + "\n"
+                                          + "pincode : " + str(center.pincode) + "\n"
+                                          + "available capacity : " + str(center.capacity) + "\n"
+                                          + "available Dose1 : " + str(center.dose1) + "\n"
+                                          + "available Dose2 : " + str(center.dose2) + "\n"
+                                          + "vaccine : " + str(center.vaccine) + "\n"
+                                          + "age limit : " + str(age_group) + "\n"
+                                          + "Date : " + str(center.date) + "\n", str(channel_chatId))
+                    logging.info('-------------------------------------- \n\n ')
+                else:
+                    # telegram_bot_sendtext("No vaccine available at center " + center.name)
+                    logging.info("No vaccine available at center " + center.name)
+                    logging.info('-------------------------------------- \n\n ')
+        else:
+            logging.error("No available centers on ", systemDate)
         saveGlobalListState()
         logging.info('-------xxxxxxxx--------- END of cowinApiCall ----------xxxxx--------- \n\n ')
 
