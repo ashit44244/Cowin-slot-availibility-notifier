@@ -97,7 +97,7 @@ Goto command prompt and run below commands :
 ```sh
 $ cd Cowin-slot-availibility-notifier
 
-$ python vaccine-availability-finder.py {district_id} {age} --refresh {refresh rate}--chatId {channel_chat_id}
+$ python vaccine-availability-finder.py {district_id} {age} --refresh {refresh rate} --chatId {channel_chat_id}
 
 example:
 $ python vaccine-availability-finder.py 363 32 --refresh 15 --chatId -1001463113416
