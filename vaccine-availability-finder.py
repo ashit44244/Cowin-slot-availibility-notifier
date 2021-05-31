@@ -12,9 +12,6 @@ import logging
 import argparse
 import pickle
 
-logging.basicConfig(filename='myapp-prod.log', format='%(asctime)s : %(levelname)s - %(message)s', level=logging.INFO,
-                    datefmt='%m/%d/%Y %I:%M:%S %p')
-
 parser = argparse.ArgumentParser()
 parser.add_argument("district_id", type=int, help='an integer for district id ')
 parser.add_argument("age", type=int, help='an integer for the user age')
@@ -23,6 +20,10 @@ parser.add_argument("--refresh", type=int, help='an optional integer for the ref
 parser.add_argument("--chatId", type=int, help='an optional integer for the telegram chat id ')
 args = parser.parse_args()
 
+
+logging.basicConfig(filename='app-prod-' + str(args.district_id) + '.log',
+                    format='%(asctime)s : %(levelname)s - %(message)s', level=logging.INFO,
+                    datefmt='%m/%d/%Y %I:%M:%S %p')
 save_state_timer = 0
 centerList_Global = []
 
