@@ -173,7 +173,7 @@ def isNotificationRequired(center):
                 logging.debug("Not present in global list and capacity is 0 No action required")
     else:
         # if global list is empty then send notification if capacity >  1
-        if centerList_Global and center.capacity > 1:
+        if center.capacity > 1:
             logging.debug("global list is empty then send notification for capacity > 0")
             sentNotification = True
             centerList_Global.append(center)
