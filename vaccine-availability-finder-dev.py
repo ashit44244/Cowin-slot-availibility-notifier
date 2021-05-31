@@ -17,6 +17,8 @@ logging.basicConfig(filename='myapp-dev.log', format='%(asctime)s : %(levelname)
 parser = argparse.ArgumentParser()
 parser.add_argument("district_id", type=int, help='an integer for district id ')
 parser.add_argument("age", type=int, help='an integer for the user age')
+parser.add_argument("--refresh", type=int, help='an optional integer for the refresh frequency. default is 5 sec, '
+                                                'excepted value: 5, 10, 15, 20, 25, 30')
 parser.add_argument("--chatId", type=int, help='an optional integer for the telegram chat id ')
 args = parser.parse_args()
 
@@ -33,12 +35,14 @@ def cowinApiCall(district_id, age, chatId):
     temp_user_agent = UserAgent()
     browser_header = {'User-Agent': temp_user_agent.random}
     systemDate = datetime.today().strftime('%d-%m-%Y')
-    district_id = 294  # 294- BBMP
+    # district_id = 294  # 294- BBMP
     centerList = []
     global centerList_Global
 
     getStatesListUrl = "https://cdn-api.co-vin.in/api/v2/admin/location/states"
     calendarByDistrictUrl = "https://cdn-api.co-vin.in/api/v2/appointment/sessions/calendarByDistrict"
+    if len(centerList_Global) == 0:
+        retrieveGlobalListState(district_id)
 
     queryparam = {'district_id': district_id, 'date': systemDate}
     try:
@@ -108,7 +112,7 @@ def cowinApiCall(district_id, age, chatId):
                     logging.info('-------------------------------------- \n\n ')
         else:
             logging.error("No available centers on ", systemDate)
-        saveGlobalListState()
+        saveGlobalListState(district_id)
         logging.info('-------xxxxxxxx--------- END of cowinApiCall ----------xxxxx--------- \n\n ')
 
     except requests.exceptions.HTTPError as errh:
@@ -165,7 +169,6 @@ def isNotificationRequired(center):
                 logging.info("Not present in global list and capacity is 0 No action required")
     else:
         # if global list is empty then send notification if capacity > 0
-        retrieveGlobalListState()
         if centerList_Global and center.capacity > 0:
             logging.info("global list is empty then send notification for capacity > 0")
             sentNotification = True
@@ -187,41 +190,48 @@ def updateCapacity(center):
             savedCenter.capacity = center.capacity
 
 
-def saveGlobalListState():
+def saveGlobalListState(district_id):
     global centerList_Global
     global save_state_timer
     # 2 hours
-    if save_state_timer == 7200:
-        outputFile = open('global_list.dat', 'wb')
+    if save_state_timer == 0 or save_state_timer == 7200:
+        outputFile = open('global_list_' + str(district_id) + '.dat', 'wb')
         pickle.dump(centerList_Global, outputFile)
         outputFile.close()
-        logging.info("state saved saveGlobalList size: " + str(len(centerList_Global)))
+        logging.info("state saved GlobalList size: " + str(len(centerList_Global)))
         # reset the timer to zero
         save_state_timer = 0
     save_state_timer += 15
 
 
-def retrieveGlobalListState():
+def retrieveGlobalListState(district_id):
     global centerList_Global
-    inputFile = open('global_list.dat', 'rb')
-    endOfFile = False  # It is used to indicate end of file
-    while not endOfFile:
-        try:
-            list = pickle.load(inputFile)
-            centerList_Global = list
-            logging.info(" retrieved Global list length : " + str(len(centerList_Global)))
-        except EOFError:
-            # When end of file has reached EOFError will be thrown
-            # and we are setting endOfFile to True to end while loop
-            endOfFile = True
-
-    inputFile.close()  # Close the file
+    try:
+        inputFile = open('global_list_' + str(district_id) + '.dat', 'rb')
+        endOfFile = False  # It is used to indicate end of file
+        while not endOfFile:
+            try:
+                list = pickle.load(inputFile)
+                centerList_Global = list
+                logging.info(" retrieved Global list length : " + str(len(centerList_Global)))
+            except EOFError:
+                # When end of file has reached EOFError will be thrown
+                # and we are setting endOfFile to True to end while loop
+                endOfFile = True
+    except FileNotFoundError:
+        logging.info("serialized File not found")
+    else:
+        inputFile.close()  # Close the file
 
 
 cowinApiCall(args.district_id, args.age, args.chatId)
 
 # scheduler to call cowin api after x sec
-schedule.every(15).seconds.do(cowinApiCall, args.district_id, args.age, args.chatId)
+
+if args.refresh in {5, 10, 15, 20, 25, 30}:
+    schedule.every(args.refresh).seconds.do(cowinApiCall, args.district_id, args.age, args.chatId)
+else:
+    schedule.every(5).seconds.do(cowinApiCall, args.district_id, args.age, args.chatId)
 
 while True:
     schedule.run_pending()

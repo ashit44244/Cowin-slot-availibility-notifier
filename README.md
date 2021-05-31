@@ -33,10 +33,11 @@ $ pip install -r requirements.txt
 ```
 
 Once `pip` has finished downloading the dependencies start the python worker by using 
-the below cmd . It requires 2 mandatory parameters and 1 optional parameter
+the below cmd . It requires 2 mandatory parameters and 2 optional parameter
 1. district id 
-2. age 
-3. channel_chat_id (optional)
+2. age
+3. refresh rate (default value : 5 sec , excepted values 5, 10, 15, 20 ,25 ,30)
+4. channel_chat_id (optional)
 
 In case no channel_chat_id is given, notifications will go to telegram channel  "cowin U45 Blore-Dev". 
 
@@ -96,10 +97,10 @@ Goto command prompt and run below commands :
 ```sh
 $ cd Cowin-slot-availibility-notifier
 
-$ python vaccine-availability-finder.py {district_id} {age} --chatId {channel_chat_id}
+$ python vaccine-availability-finder.py {district_id} {age} --refresh {refresh rate}--chatId {channel_chat_id}
 
 example:
-$ python vaccine-availability-finder.py 363 32 --chatId -1001463113416
+$ python vaccine-availability-finder.py 363 32 --refresh 15 --chatId -1001463113416
 '363 is district_id for pune'
 '32 is age given for 18-45 age group'
 '-1001463113416 is the chat id for cowin U45 Pune telegram channel'
@@ -123,10 +124,10 @@ once you run below command and join above mentioned telegram channel, you will s
 
 ```sh
 
-$ python vaccine-availability-finder-dev.py {district_id} {age} --chatId {channel_chat_id}
+$ python vaccine-availability-finder-dev.py {district_id} {age} --refresh {refresh rate} --chatId {channel_chat_id}
 
 example:
-python vaccine-availability-finder-dev.py 363 32 --chatId -1001172971393 
+python vaccine-availability-finder-dev.py 363 32 --refresh 15 --chatId -1001172971393 
 '363 is district_id for Pune'
 '32 is age and will run for age 18-45'
 '-1001172971393 is the chat Id for cowin U45 Blore-Dev telegram channel'
