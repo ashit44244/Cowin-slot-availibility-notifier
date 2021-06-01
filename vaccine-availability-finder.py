@@ -52,7 +52,7 @@ def cowinApiCall(district_id, age, chatId):
         response = requests.get(calendarByDistrictUrl,
                                 headers=browser_header, params=queryparam, timeout=2)
         logging.info('response: ' + str(response))
-        if response.ok:
+        if response.status_code == 200:
             resp_json = response.json()
             if 'centers' in resp_json:
                 logging.debug('Available on: ' + str(systemDate) +
