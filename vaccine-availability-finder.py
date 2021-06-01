@@ -139,7 +139,7 @@ def isNotificationRequired(center):
     sentNotification = False
     logging.info("Start -- for centre:  " + center.name +
                  " for date : " + str(center.date) + " : session id : " + center.sessionId +
-                 " | center capacity: " + center.capacity + "  | dose 1 :" + center.dose1 + " | Dose 2 " + center.dose2)
+                 " | center capacity: " + center.capacity + "  | dose 1 :" + str(center.dose1) + " | Dose 2 " + str(center.dose2))
     if centerList_Global:
         if center in centerList_Global:
             # if any(gl.sessionId == center.sessionId for gl in centerList_Global):
