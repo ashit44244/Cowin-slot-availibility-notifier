@@ -50,7 +50,7 @@ def cowinApiCall(district_id, age, chatId):
     queryparam = {'district_id': district_id, 'date': systemDate}
     try:
         response = requests.get(calendarByDistrictUrl,
-                                headers=browser_header, params=queryparam, timeout=4)
+                                headers=browser_header, params=queryparam, timeout=2)
         logging.info('response: ' + str(response))
         if response.ok:
             resp_json = response.json()
@@ -139,12 +139,12 @@ def isNotificationRequired(center):
     sentNotification = False
     logging.info("Start -- for centre:  " + center.name +
                  " for date : " + str(center.date) + " : session id : " + center.sessionId +
-                 "  centerList_Global size: " + str(len(centerList_Global)))
+                 " | center capacity: " + center.capacity + "  | dose 1 :" + center.dose1 + " | Dose 2 " + center.dose2)
     if centerList_Global:
         if center in centerList_Global:
             # if any(gl.sessionId == center.sessionId for gl in centerList_Global):
             saved_elements = getSavedCenter(center)
-            logging.debug(" center present in global list: saved capacity : "
+            logging.info(" center present in global list: saved capacity : "
                           + str(saved_elements.capacity) + " center capacity : " + str(center.capacity))
             # global list contains center list
             # chk capacity if latest capacity > 1 then don't update the global list  nor sent notification
@@ -153,31 +153,31 @@ def isNotificationRequired(center):
                     logging.info("center capacity increased - Send Notification: updated global list")
                     updateCapacity(center)
                     sentNotification = True
-                    logging.debug("centerList_Global size after updating : " + str(len(centerList_Global)))
+                    logging.info("centerList_Global size after updating : " + str(len(centerList_Global)))
                 else:
-                    logging.debug("new capacity not added - No Notification send ")
+                    logging.info("new capacity not added - No Notification send ")
                     sentNotification = False
             elif center.capacity == 0:
-                logging.debug("capacity is 0 all slots booked , remove it from global list and wait for new slots")
-                logging.debug("remove from global list: len before: " + str(len(centerList_Global)))
+                logging.info("capacity is 0 all slots booked , remove it from global list and wait for new slots")
+                logging.info("remove from global list: len before: " + str(len(centerList_Global)))
                 centerList_Global.remove(center)
-                logging.debug("remove from global list: len after: " + str(len(centerList_Global)))
+                logging.info("remove from global list: len after: " + str(len(centerList_Global)))
                 sentNotification = False
         else:
             # if not present in global list and capacity > 1 add in global list and send notification
             if center.capacity > 1:
-                logging.debug("Not present in global list and capacity > 0 add in global list and send notification")
+                logging.info("Not present in global list and capacity > 0 add in global list and send notification")
                 centerList_Global.append(center)
                 sentNotification = True
             else:
-                logging.debug("Not present in global list and capacity is 0 No action required")
+                logging.info("Not present in global list and capacity is 0 No action required")
     else:
         # if global list is empty then send notification if capacity >  1
         if center.capacity > 1:
-            logging.debug("global list is empty then send notification for capacity > 0")
+            logging.info("global list is empty then send notification for capacity > 0")
             sentNotification = True
             centerList_Global.append(center)
-    logging.info("Notification for the centre :" + center.name + " is: " + str(sentNotification) + '\n')
+    logging.info("Notification required for the centre :" + center.name + " is: " + str(sentNotification) + '\n')
     logging.debug('-- End checking notification for centre: -------------' + center.name)
     return sentNotification
 
