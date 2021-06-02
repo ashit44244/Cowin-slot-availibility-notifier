@@ -9,6 +9,7 @@ from CenterDetails import CenterInfo
 import schedule
 import time
 import logging
+import logging.handlers as handlers
 import argparse
 import pickle
 
@@ -21,9 +22,17 @@ parser.add_argument("--chatId", type=int, help='an optional integer for the tele
 args = parser.parse_args()
 
 
-logging.basicConfig(filename='app-prod-' + str(args.district_id) + '.log',
-                    format='%(asctime)s : %(levelname)s - %(message)s', level=logging.INFO,
-                    datefmt='%m/%d/%Y %I:%M:%S %p')
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+fmt = '%(asctime)s : %(levelname)s - %(message)s'
+formatter = logging.Formatter(fmt=fmt, datefmt='%m/%d/%Y %I:%M:%S %p')
+
+logHandler = handlers.TimedRotatingFileHandler('app-dev-' + str(args.district_id) + '.log', when="midnight", interval=1)
+logHandler.setLevel(logging.INFO)
+logHandler.setFormatter(formatter)
+logger.addHandler(logHandler)
+
+
 save_state_timer = 0
 centerList_Global = []
 
@@ -32,7 +41,7 @@ def cowinApiCall(district_id, age, chatId):
     age_group = "18 to 44" if age < 45 else "above 45"
     # default chatId (-1001172971393) - (cowin U45 Blore-Dev) if chatID is not provided
     channel_chatId = "-1001172971393" if chatId is None else chatId
-    logging.info('-------xxxxxx------Started cowinApiCall ---------xxxxxxx------ for district id '
+    logger.info('-------xxxxxx------Started cowinApiCall ---------xxxxxxx------ for district id '
                  + str(district_id) + ' and age group ' + age_group + "  chat id : " + str(channel_chatId) + '\n')
     temp_user_agent = UserAgent()
     browser_header = {'User-Agent': temp_user_agent.random}
@@ -51,11 +60,11 @@ def cowinApiCall(district_id, age, chatId):
     try:
         response = requests.get(calendarByDistrictUrl,
                                 headers=browser_header, params=queryparam, timeout=2)
-        logging.info('response: ' + str(response))
+        logger.info('response: ' + str(response))
         if response.status_code == 200:
             resp_json = response.json()
             if 'centers' in resp_json:
-                logging.debug('Available on: ' + str(systemDate) +
+                logger.debug('Available on: ' + str(systemDate) +
                               ' for ' + age_group + ' age group ,user age: ' + str(age))
                 for center in resp_json["centers"]:
                     for session in center["sessions"]:
@@ -67,37 +76,37 @@ def cowinApiCall(district_id, age, chatId):
                             capacity = session["available_capacity"]
                             dose1 = session["available_capacity_dose1"]
                             dose2 = session["available_capacity_dose2"]
-                            logging.debug('\t ' + center["name"])
-                            logging.debug('\t ' + center["block_name"])
-                            logging.debug('\t Price: ' + center["fee_type"])
-                            logging.debug('\t Available Capacity: ' +
+                            logger.debug('\t ' + center["name"])
+                            logger.debug('\t ' + center["block_name"])
+                            logger.debug('\t Price: ' + center["fee_type"])
+                            logger.debug('\t Available Capacity: ' +
                                           str(session["available_capacity"]))
-                            logging.debug('\t Available Dose 1: ' +
+                            logger.debug('\t Available Dose 1: ' +
                                           str(session["available_capacity_dose1"]))
-                            logging.debug('\t Available Dose 2: ' +
+                            logger.debug('\t Available Dose 2: ' +
                                           str(session["available_capacity_dose2"]))
                             sessionId = session["session_id"]
-                            logging.debug('\t session ID : ' +
+                            logger.debug('\t session ID : ' +
                                           str(session["session_id"]))
                             if (session["vaccine"] != ''):
-                                logging.debug('\t Vaccine: ' + session["vaccine"])
+                                logger.debug('\t Vaccine: ' + session["vaccine"])
                                 vaccine = session["vaccine"]
-                            logging.debug('\t min age limit : ' +
+                            logger.debug('\t min age limit : ' +
                                           str(session["min_age_limit"]))
-                            logging.debug('\t date: ' +
+                            logger.debug('\t date: ' +
                                           str(session["date"]))
                             ageLimit = session["min_age_limit"]
                             date = session["date"]
-                            logging.debug('----------------------------------- \n\n ')
+                            logger.debug('----------------------------------- \n\n ')
                             centerList.append(
                                 CenterInfo(name, block, pincode, feeType, capacity, dose1, dose2, sessionId, vaccine,
                                            ageLimit, date))
             else:
-                logging.error("No available centers on ", systemDate)
+                logger.error("No available centers on ", systemDate)
         if centerList:
             for center in centerList:
                 if isNotificationRequired(center):
-                    logging.info(' slots available - sending telegram msg:  center name : ' + str(center.name) +
+                    logger.info(' slots available - sending telegram msg:  center name : ' + str(center.name) +
                                  ' sessionId: ' + str(center.sessionId))
                     telegram_bot_sendtext("Center : " + center.name + "\n"
                                           + "Block : " + center.blockName + "\n"
@@ -108,18 +117,18 @@ def cowinApiCall(district_id, age, chatId):
                                           + "vaccine : " + str(center.vaccine) + "\n"
                                           + "age limit : " + str(age_group) + "\n"
                                           + "Date : " + str(center.date) + "\n", str(channel_chatId))
-                    logging.info('-------------------------------------- \n\n ')
+                    logger.info('-------------------------------------- \n\n ')
                 else:
                     # telegram_bot_sendtext("No vaccine available at center " + center.name)
-                    logging.debug("No vaccine available at center " + center.name)
-                    logging.debug('-------------------------------------- \n\n ')
+                    logger.debug("No vaccine available at center " + center.name)
+                    logger.debug('-------------------------------------- \n\n ')
         else:
-            logging.error("No available centers on ", systemDate)
+            logger.error("No available centers on ", systemDate)
         saveGlobalListState(district_id)
-        logging.debug('-------xxxxxxxx--------- END of cowinApiCall ----------xxxxx--------- \n\n ')
+        logger.debug('-------xxxxxxxx--------- END of cowinApiCall ----------xxxxx--------- \n\n ')
 
     except requests.exceptions.HTTPError as errh:
-        logging.info("Http Error:", str(errh))
+        logger.info("Http Error:", str(errh))
     except (
             requests.ConnectionError,
             requests.exceptions.ConnectionError,
@@ -127,59 +136,59 @@ def cowinApiCall(district_id, age, chatId):
             requests.exceptions.Timeout,
             requests.exceptions.ConnectTimeout
     ) as errc:
-        logging.info("Error Connecting:", str(errc))
+        logger.info("Error Connecting:", str(errc))
     except requests.exceptions.Timeout as errt:
-        logging.info("Timeout Error:", str(errt))
+        logger.info("Timeout Error:", str(errt))
     except requests.exceptions.RequestException as err:
-        logging.info("OOps: Something Else", str(err))
+        logger.info("OOps: Something Else", str(err))
 
 
 def isNotificationRequired(center):
     global centerList_Global
     sentNotification = False
-    logging.info("Start -- for centre:  " + center.name +
+    logger.info("Start -- for centre:  " + center.name +
                  " for date : " + str(center.date) + " : session id : " + center.sessionId +
                  " | center capacity: " + str(center.capacity) + "  | dose 1 : " + str(center.dose1) + " | Dose 2 : " + str(center.dose2))
-    logging.info("centerList_Global length : " + str(len(centerList_Global)))
+    logger.info("centerList_Global length : " + str(len(centerList_Global)))
     if centerList_Global:
         if center in centerList_Global:
             # if any(gl.sessionId == center.sessionId for gl in centerList_Global):
             saved_elements = getSavedCenter(center)
-            logging.info(" center present in global list: saved capacity : "
+            logger.info(" center present in global list: saved capacity : "
                           + str(saved_elements.capacity) + " center capacity : " + str(center.capacity))
             # global list contains center list
             # chk capacity if latest capacity > 1 then don't update the global list  nor sent notification
             if center.capacity > 1:
                 if center.capacity > saved_elements.capacity:
-                    logging.info("center capacity increased - Send Notification: updated global list")
+                    logger.info("center capacity increased - Send Notification: updated global list")
                     updateCapacity(center)
                     sentNotification = True
-                    logging.info("centerList_Global size after updating : " + str(len(centerList_Global)))
+                    logger.info("centerList_Global size after updating : " + str(len(centerList_Global)))
                 else:
-                    logging.info("new capacity not added - No Notification send ")
+                    logger.info("new capacity not added - No Notification send ")
                     sentNotification = False
             elif center.capacity == 0:
-                logging.info("capacity is 0 all slots booked , remove it from global list and wait for new slots")
-                logging.info("remove from global list: len before: " + str(len(centerList_Global)))
+                logger.info("capacity is 0 all slots booked , remove it from global list and wait for new slots")
+                logger.info("remove from global list: len before: " + str(len(centerList_Global)))
                 centerList_Global.remove(center)
-                logging.info("remove from global list: len after: " + str(len(centerList_Global)))
+                logger.info("remove from global list: len after: " + str(len(centerList_Global)))
                 sentNotification = False
         else:
             # if not present in global list and capacity > 1 add in global list and send notification
             if center.capacity > 1:
-                logging.info("Not present in global list and capacity > 0 add in global list and send notification")
+                logger.info("Not present in global list and capacity > 0 add in global list and send notification")
                 centerList_Global.append(center)
                 sentNotification = True
             else:
-                logging.info("Not present in global list and capacity is 0 No action required")
+                logger.info("Not present in global list and capacity is 0 No action required")
     else:
         # if global list is empty then send notification if capacity >  1
         if center.capacity > 1:
-            logging.info("global list is empty then send notification for capacity > 0")
+            logger.info("global list is empty then send notification for capacity > 0")
             sentNotification = True
             centerList_Global.append(center)
-    logging.info("Notification required for the centre :" + center.name + " is: " + str(sentNotification) + '\n')
-    logging.debug('-- End checking notification for centre: -------------' + center.name)
+    logger.info("Notification required for the centre :" + center.name + " is: " + str(sentNotification) + '\n')
+    logger.debug('-- End checking notification for centre: -------------' + center.name)
     return sentNotification
 
 
@@ -203,7 +212,7 @@ def saveGlobalListState(district_id):
         outputFile = open('global_list_' + str(district_id) + '.dat', 'wb')
         pickle.dump(centerList_Global, outputFile)
         outputFile.close()
-        logging.info("state saved GlobalList size: " + str(len(centerList_Global)))
+        logger.info("state saved GlobalList size: " + str(len(centerList_Global)))
         # reset the timer to zero
         save_state_timer = 0
     save_state_timer += 15
@@ -218,13 +227,13 @@ def retrieveGlobalListState(district_id):
             try:
                 list = pickle.load(inputFile)
                 centerList_Global = list
-                logging.info(" retrieved Global list length : " + str(len(centerList_Global)))
+                logger.info(" retrieved Global list length : " + str(len(centerList_Global)))
             except EOFError:
                 # When end of file has reached EOFError will be thrown
                 # and we are setting endOfFile to True to end while loop
                 endOfFile = True
     except FileNotFoundError:
-        logging.debug("serialized File not found")
+        logger.debug("serialized File not found")
     else:
         inputFile.close()  # Close the file
 
