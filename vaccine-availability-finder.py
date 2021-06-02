@@ -27,7 +27,7 @@ logger.setLevel(logging.INFO)
 fmt = '%(asctime)s : %(levelname)s - %(message)s'
 formatter = logging.Formatter(fmt=fmt, datefmt='%m/%d/%Y %I:%M:%S %p')
 
-logHandler = handlers.TimedRotatingFileHandler('app-dev-' + str(args.district_id) + '.log', when="midnight", interval=1)
+logHandler = handlers.TimedRotatingFileHandler('app-prod-' + str(args.district_id) + '.log', when="midnight", interval=1)
 logHandler.setLevel(logging.INFO)
 logHandler.setFormatter(formatter)
 logger.addHandler(logHandler)
