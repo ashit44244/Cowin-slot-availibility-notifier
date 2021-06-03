@@ -48,7 +48,7 @@ def cowinApiCall(district_id, age, chatId):
     global centerList_Global
 
     getStatesListUrl = "https://cdn-api.co-vin.in/api/v2/admin/location/states"
-    calendarByDistrictUrl = "https://cdn-api.co-vin.in/api/v2/appointment/sessions/calendarByDistrict"
+    calendarByDistrictUrl = "https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/calendarByDistrict"
     if len(centerList_Global) == 0:
         retrieveGlobalListState(district_id)
 
