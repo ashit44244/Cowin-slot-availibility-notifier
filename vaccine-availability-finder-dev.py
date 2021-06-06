@@ -108,7 +108,7 @@ def cowinApiCall(district_id, age, chatId):
                                 ' sessionId: ' + str(center.sessionId))
                     telegram_bot_sendtext("*" + center.name + "*" + "\n"
                                           + "pincode : " + str(center.pincode) + "\n"
-                                          + "Block : " + center.blockName + " - " + center.district + "\n"
+                                          + center.blockName + " - " + center.district + "\n"
                                           + "vaccine : " + str(center.vaccine) + "\n"
                                           + "available capacity : " + str(center.capacity) + "\n"
                                           + "available Dose 1 : " + str(center.dose1) + "\n"
