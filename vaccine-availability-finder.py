@@ -21,17 +21,16 @@ parser.add_argument("--refresh", type=int, help='an optional integer for the ref
 parser.add_argument("--chatId", type=int, help='an optional integer for the telegram chat id ')
 args = parser.parse_args()
 
-
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 fmt = '%(asctime)s : %(levelname)s - %(message)s'
 formatter = logging.Formatter(fmt=fmt, datefmt='%m/%d/%Y %I:%M:%S %p')
 
-logHandler = handlers.TimedRotatingFileHandler('app-prod-' + str(args.district_id) + '.log', when="midnight", interval=1)
+logHandler = handlers.TimedRotatingFileHandler('app-prod-' + str(args.district_id) + '.log', when="midnight",
+                                               interval=1)
 logHandler.setLevel(logging.INFO)
 logHandler.setFormatter(formatter)
 logger.addHandler(logHandler)
-
 
 save_state_timer = 0
 centerList_Global = []
@@ -42,7 +41,7 @@ def cowinApiCall(district_id, age, chatId):
     # default chatId (-1001172971393) - (cowin U45 Blore-Dev) if chatID is not provided
     channel_chatId = "-1001172971393" if chatId is None else chatId
     logger.info('-------xxxxxx------Started cowinApiCall ---------xxxxxxx------ for district id '
-                 + str(district_id) + ' and age group ' + age_group + "  chat id : " + str(channel_chatId) + '\n')
+                + str(district_id) + ' and age group ' + age_group + "  chat id : " + str(channel_chatId) + '\n')
     temp_user_agent = UserAgent()
     browser_header = {'User-Agent': temp_user_agent.random}
     systemDate = datetime.today().strftime('%d-%m-%Y')
@@ -65,7 +64,7 @@ def cowinApiCall(district_id, age, chatId):
             resp_json = response.json()
             if 'centers' in resp_json:
                 logger.debug('Available on: ' + str(systemDate) +
-                              ' for ' + age_group + ' age group ,user age: ' + str(age))
+                             ' for ' + age_group + ' age group ,user age: ' + str(age))
                 for center in resp_json["centers"]:
                     for session in center["sessions"]:
                         if session["min_age_limit"] <= age:
@@ -81,26 +80,27 @@ def cowinApiCall(district_id, age, chatId):
                             logger.debug('\t ' + center["block_name"])
                             logger.debug('\t Price: ' + center["fee_type"])
                             logger.debug('\t Available Capacity: ' +
-                                          str(session["available_capacity"]))
+                                         str(session["available_capacity"]))
                             logger.debug('\t Available Dose 1: ' +
-                                          str(session["available_capacity_dose1"]))
+                                         str(session["available_capacity_dose1"]))
                             logger.debug('\t Available Dose 2: ' +
-                                          str(session["available_capacity_dose2"]))
+                                         str(session["available_capacity_dose2"]))
                             sessionId = session["session_id"]
                             logger.debug('\t session ID : ' +
-                                          str(session["session_id"]))
+                                         str(session["session_id"]))
                             if (session["vaccine"] != ''):
                                 logger.debug('\t Vaccine: ' + session["vaccine"])
                                 vaccine = session["vaccine"]
                             logger.debug('\t min age limit : ' +
-                                          str(session["min_age_limit"]))
+                                         str(session["min_age_limit"]))
                             logger.debug('\t date: ' +
-                                          str(session["date"]))
+                                         str(session["date"]))
                             ageLimit = session["min_age_limit"]
                             date = session["date"]
                             logger.debug('----------------------------------- \n\n ')
                             centerList.append(
-                                CenterInfo(name, block, district, pincode, feeType, capacity, dose1, dose2, sessionId, vaccine,
+                                CenterInfo(name, block, district, pincode, feeType, capacity, dose1, dose2, sessionId,
+                                           vaccine,
                                            ageLimit, date))
             else:
                 logger.error("No available centers on ", systemDate)
@@ -108,8 +108,8 @@ def cowinApiCall(district_id, age, chatId):
             for center in centerList:
                 if isNotificationRequired(center):
                     logger.info(' slots available - sending telegram msg:  center name : ' + str(center.name) +
-                                 ' sessionId: ' + str(center.sessionId))
-                    telegram_bot_sendtext(center.name + "\n"
+                                ' sessionId: ' + str(center.sessionId))
+                    telegram_bot_sendtext("*" + center.name + "*" + "\n"
                                           + "pincode : " + str(center.pincode) + "\n"
                                           + "Block : " + center.blockName + " - " + center.district + "\n"
                                           + "vaccine : " + str(center.vaccine) + "\n"
@@ -117,7 +117,10 @@ def cowinApiCall(district_id, age, chatId):
                                           + "available Dose 1 : " + str(center.dose1) + "\n"
                                           + "available Dose 2 : " + str(center.dose2) + "\n"
                                           + "age limit : " + str(age_group) + "\n"
-                                          + "Date : " + str(center.date) + "\n", str(channel_chatId))
+                                          + "Date : " + str(center.date) + "\n"
+                                          + "CoWin : " + "_" + "https://selfregistration.cowin.gov.in/" + "_" + "\n"
+                                          + "\U0001F489 \U0001F489",
+                                          str(channel_chatId))
                     logger.info('-------------------------------------- \n\n ')
                 else:
                     # telegram_bot_sendtext("No vaccine available at center " + center.name)
@@ -148,15 +151,16 @@ def isNotificationRequired(center):
     global centerList_Global
     sentNotification = False
     logger.info("Start -- for centre:  " + center.name +
-                 " for date : " + str(center.date) + " : session id : " + center.sessionId +
-                 " | center capacity: " + str(center.capacity) + "  | dose 1 : " + str(center.dose1) + " | Dose 2 : " + str(center.dose2))
+                " for date : " + str(center.date) + " : session id : " + center.sessionId +
+                " | center capacity: " + str(center.capacity) + "  | dose 1 : " + str(
+        center.dose1) + " | Dose 2 : " + str(center.dose2))
     logger.info("centerList_Global length : " + str(len(centerList_Global)))
     if centerList_Global:
         if center in centerList_Global:
             # if any(gl.sessionId == center.sessionId for gl in centerList_Global):
             saved_elements = getSavedCenter(center)
             logger.info(" center present in global list: saved capacity : "
-                          + str(saved_elements.capacity) + " center capacity : " + str(center.capacity))
+                        + str(saved_elements.capacity) + " center capacity : " + str(center.capacity))
             # global list contains center list
             # chk capacity if latest capacity > 1 then don't update the global list  nor sent notification
             if center.capacity > 1:
