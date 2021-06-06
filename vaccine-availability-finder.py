@@ -71,6 +71,7 @@ def cowinApiCall(district_id, age, chatId):
                         if session["min_age_limit"] <= age:
                             name = center["name"]
                             block = center["block_name"]
+                            district = center["district_name"]
                             pincode = center["pincode"]
                             feeType = center["fee_type"]
                             capacity = session["available_capacity"]
@@ -99,7 +100,7 @@ def cowinApiCall(district_id, age, chatId):
                             date = session["date"]
                             logger.debug('----------------------------------- \n\n ')
                             centerList.append(
-                                CenterInfo(name, block, pincode, feeType, capacity, dose1, dose2, sessionId, vaccine,
+                                CenterInfo(name, block, district, pincode, feeType, capacity, dose1, dose2, sessionId, vaccine,
                                            ageLimit, date))
             else:
                 logger.error("No available centers on ", systemDate)
@@ -108,13 +109,13 @@ def cowinApiCall(district_id, age, chatId):
                 if isNotificationRequired(center):
                     logger.info(' slots available - sending telegram msg:  center name : ' + str(center.name) +
                                  ' sessionId: ' + str(center.sessionId))
-                    telegram_bot_sendtext("Center : " + center.name + "\n"
-                                          + "Block : " + center.blockName + "\n"
+                    telegram_bot_sendtext(center.name + "\n"
                                           + "pincode : " + str(center.pincode) + "\n"
-                                          + "available capacity : " + str(center.capacity) + "\n"
-                                          + "available Dose1 : " + str(center.dose1) + "\n"
-                                          + "available Dose2 : " + str(center.dose2) + "\n"
+                                          + "Block : " + center.blockName + " - " + center.district + "\n"
                                           + "vaccine : " + str(center.vaccine) + "\n"
+                                          + "available capacity : " + str(center.capacity) + "\n"
+                                          + "available Dose 1 : " + str(center.dose1) + "\n"
+                                          + "available Dose 2 : " + str(center.dose2) + "\n"
                                           + "age limit : " + str(age_group) + "\n"
                                           + "Date : " + str(center.date) + "\n", str(channel_chatId))
                     logger.info('-------------------------------------- \n\n ')
