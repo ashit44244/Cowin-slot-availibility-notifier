@@ -25,7 +25,7 @@ logger.setLevel(logging.INFO)
 fmt = '%(asctime)s : %(levelname)s - %(message)s'
 formatter = logging.Formatter(fmt=fmt, datefmt='%m/%d/%Y %I:%M:%S %p')
 
-logHandler = handlers.TimedRotatingFileHandler('app-dev-' + str(args.district_id) + '.log', when="midnight", interval=1)
+logHandler = handlers.TimedRotatingFileHandler('app-dev-' + str(args.district_id) + '.log', when="H", interval=12)
 logHandler.setLevel(logging.INFO)
 logHandler.setFormatter(formatter)
 logger.addHandler(logHandler)
@@ -41,7 +41,9 @@ def cowinApiCall(district_id, age, chatId):
     logger.info('-------xxxxxx------Started cowinApiCall ---------xxxxxxx------ for district id '
                  + str(district_id) + ' and age group ' + age_group + "  chat id : " + str(channel_chatId))
     temp_user_agent = UserAgent()
-    browser_header = {'User-Agent': temp_user_agent.random}
+    browser_header = {'User-Agent': temp_user_agent.random,
+                      'Cache-Control': 'no-cache',
+                      'Pragma': 'no-cache'}
     systemDate = datetime.today().strftime('%d-%m-%Y')
     # district_id = 294  # 294- BBMP
     centerList = []
