@@ -34,7 +34,6 @@ logger.addHandler(logHandler)
 
 save_state_timer = 0
 centerList_Global = []
-centerList_tmp = []
 
 
 def cowinApiCall(district_id, age, chatId):
@@ -44,19 +43,14 @@ def cowinApiCall(district_id, age, chatId):
     logger.info('-------xxxxxx------Started cowinApiCall ---------xxxxxxx------ for district id '
                 + str(district_id) + ' and age group ' + age_group + "  chat id : " + str(channel_chatId) + '\n')
     temp_user_agent = UserAgent()
-    browser_header = {
-        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36',
-        'Cache-Control': 'no-cache',
-        'Pragma': 'no-cache',
-        'origin': 'https://selfregistration.cowin.gov.in/',
-        'referer': 'https://selfregistration.cowin.gov.in/'
-    }
+    browser_header = {'User-Agent': temp_user_agent.random,
+                      'Cache-Control': 'no-cache',
+                      'Pragma': 'no-cache'}
     systemDate = datetime.today().strftime('%d-%m-%Y')
     # district_id = 294  # 294- BBMP
     centerList = []
     global session_id
     global centerList_Global
-    global centerList_tmp
 
     getStatesListUrl = "https://cdn-api.co-vin.in/api/v2/admin/location/states"
     calendarByDistrictUrl = "https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/calendarByDistrict"
@@ -134,11 +128,9 @@ def cowinApiCall(district_id, age, chatId):
                     # telegram_bot_sendtext("No vaccine available at center " + center.name)
                     logger.debug("No vaccine available at center " + center.name)
                     logger.debug('-------------------------------------- \n\n ')
-            centerList_Global = centerList_tmp
         else:
             logger.error("No available centers on ", systemDate)
         saveGlobalListState(district_id)
-        centerList_tmp = []
         logger.debug('-------xxxxxxxx--------- END of cowinApiCall ----------xxxxx--------- \n\n ')
 
     except requests.exceptions.HTTPError as errh:
@@ -159,7 +151,6 @@ def cowinApiCall(district_id, age, chatId):
 
 def isNotificationRequired(center):
     global centerList_Global
-    global centerList_tmp
     sentNotification = False
     logger.info("Start -- for centre:  " + center.name +
                 " for date : " + str(center.date) + " : session id : " + center.sessionId +
@@ -170,7 +161,6 @@ def isNotificationRequired(center):
         if center in centerList_Global:
             # if any(gl.sessionId == center.sessionId for gl in centerList_Global):
             saved_elements = getSavedCenter(center)
-            centerList_tmp.append(saved_elements)
             logger.info(" center present in global list: saved capacity : "
                         + str(saved_elements.capacity) + " center capacity : " + str(center.capacity))
             # global list contains center list
@@ -180,21 +170,21 @@ def isNotificationRequired(center):
                     logger.info("center capacity increased - Send Notification: updated global list")
                     updateCapacity(center)
                     sentNotification = True
-                    logger.info("centerList_tmp size after updation : " + str(len(centerList_tmp)))
+                    logger.info("centerList_Global size after updating : " + str(len(centerList_Global)))
                 else:
                     logger.info("new capacity not added - No Notification send ")
                     sentNotification = False
             elif center.capacity == 0:
                 logger.info("capacity is 0 all slots booked , remove it from global list and wait for new slots")
-                logger.info("remove from local list: len before: " + str(len(centerList_tmp)))
-                centerList_tmp.remove(center)
-                logger.info("remove from local list: len after: " + str(len(centerList_tmp)))
+                logger.info("remove from global list: len before: " + str(len(centerList_Global)))
+                centerList_Global.remove(center)
+                logger.info("remove from global list: len after: " + str(len(centerList_Global)))
                 sentNotification = False
         else:
-            # if not present in local list and capacity > 1 add in global list and send notification
+            # if not present in global list and capacity > 1 add in global list and send notification
             if center.capacity > 1:
                 logger.info("Not present in global list and capacity > 0 add in global list and send notification")
-                centerList_tmp.append(center)
+                centerList_Global.append(center)
                 sentNotification = True
             else:
                 logger.info("Not present in global list and capacity is 0 No action required")
@@ -210,7 +200,7 @@ def isNotificationRequired(center):
 
 
 def getSavedCenter(center):
-    for savedCenter in centerList_tmp:
+    for savedCenter in centerList_Global:
         if center == savedCenter:
             return savedCenter
 
@@ -243,10 +233,6 @@ def retrieveGlobalListState(district_id):
         while not endOfFile:
             try:
                 list = pickle.load(inputFile)
-                for center in list:
-                    logger.info(
-                        " retrieveGlobalListState: center name " + center.name + " | session id : " + center.sessionId + " | capacity: " + str(
-                            center.capacity))
                 centerList_Global = list
                 logger.info(" retrieved Global list length : " + str(len(centerList_Global)))
             except EOFError:
