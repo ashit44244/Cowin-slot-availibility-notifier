@@ -166,7 +166,7 @@ def isNotificationRequired(center):
             # global list contains center list
             # chk capacity if latest capacity > 1 then don't update the global list  nor sent notification
             if center.capacity > 1:
-                if center.capacity > saved_elements.capacity:
+                if center.capacity > saved_elements.capacity + 20:
                     logger.info("center capacity increased - Send Notification: updated global list")
                     updateCapacity(center)
                     sentNotification = True

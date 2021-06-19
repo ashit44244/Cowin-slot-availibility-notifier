@@ -39,7 +39,7 @@ def cowinApiCall(district_id, age, chatId):
     # default chatId (-1001172971393) - cowin U45 Blore-Dev if chatID is not provided
     channel_chatId = "-1001172971393" if chatId is None else chatId
     logger.info('-------xxxxxx------Started cowinApiCall ---------xxxxxxx------ for district id '
-                 + str(district_id) + ' and age group ' + age_group + "  chat id : " + str(channel_chatId))
+                + str(district_id) + ' and age group ' + age_group + "  chat id : " + str(channel_chatId))
     temp_user_agent = UserAgent()
     browser_header = {'User-Agent': temp_user_agent.random,
                       'Cache-Control': 'no-cache',
@@ -63,7 +63,7 @@ def cowinApiCall(district_id, age, chatId):
             resp_json = response.json()
             if 'centers' in resp_json:
                 logger.info('Available on: ' + str(systemDate) +
-                             ' for ' + age_group + ' age group ,user age: ' + str(age))
+                            ' for ' + age_group + ' age group ,user age: ' + str(age))
                 for center in resp_json["centers"]:
                     for session in center["sessions"]:
                         if session["min_age_limit"] <= age:
@@ -160,7 +160,7 @@ def isNotificationRequired(center):
             # global list contains center list
             # chk capacity if latest capacity > 1 then don't update the global list  nor sent notification
             if center.capacity > 1:
-                if center.capacity > saved_elements.capacity:
+                if center.capacity > saved_elements.capacity + 20:
                     logger.info("center capacity increased - Send Notification: updated global list")
                     updateCapacity(center)
                     sentNotification = True
@@ -227,6 +227,10 @@ def retrieveGlobalListState(district_id):
         while not endOfFile:
             try:
                 list = pickle.load(inputFile)
+                for center in list:
+                    logger.info(
+                        " retrieveGlobalListState: center name " + center.name + " | session id : " + center.sessionId + " | capacity: " + str(
+                            center.capacity))
                 centerList_Global = list
                 logger.info(" retrieved Global list length : " + str(len(centerList_Global)))
             except EOFError:
