@@ -165,8 +165,8 @@ def isNotificationRequired(center):
                         + str(saved_elements.capacity) + " center capacity : " + str(center.capacity))
             # global list contains center list
             # chk capacity if latest capacity > 1 then don't update the global list  nor sent notification
-            if center.capacity > 1:
-                if center.capacity > saved_elements.capacity + 20:
+            if center.capacity > 2:
+                if center.capacity > saved_elements.capacity + 50:
                     logger.debug("center capacity increased - Send Notification: updated global list")
                     updateCapacity(center)
                     sentNotification = True
@@ -182,7 +182,7 @@ def isNotificationRequired(center):
                 sentNotification = False
         else:
             # if not present in global list and capacity > 1 add in global list and send notification
-            if center.capacity > 1:
+            if center.capacity > 2:
                 logger.debug("Not present in global list and capacity > 0 add in global list and send notification")
                 centerList_Global.append(center)
                 sentNotification = True
@@ -190,7 +190,7 @@ def isNotificationRequired(center):
                 logger.debug("Not present in global list and capacity is 0 No action required")
     else:
         # if global list is empty then send notification if capacity >  1
-        if center.capacity > 1:
+        if center.capacity > 2:
             logger.debug("global list is empty then send notification for capacity > 0")
             sentNotification = True
             centerList_Global.append(center)
