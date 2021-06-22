@@ -208,9 +208,15 @@ def updateCapacity(center):
 def saveGlobalListState(district_id):
     global centerList_Global
     global save_state_timer
+    systemDate = datetime.today().strftime('%d-%m-%Y')
+    empty_list = []
     # 2 hours
     if save_state_timer == 0 or save_state_timer == 7200:
         outputFile = open('global_list_' + str(district_id) + '.dat', 'wb')
+        pickle.dump(empty_list, outputFile)
+        for center in centerList_Global:
+            if center.date < systemDate:
+                centerList_Global.remove(center)
         pickle.dump(centerList_Global, outputFile)
         outputFile.close()
         logger.info("state saved GlobalList size: " + str(len(centerList_Global)))
@@ -229,8 +235,8 @@ def retrieveGlobalListState(district_id):
                 list = pickle.load(inputFile)
                 for center in list:
                     logger.info(
-                        " retrieveGlobalListState: center name " + center.name + " | session id : " + center.sessionId + " | capacity: " + str(
-                            center.capacity))
+                        " retrieved: center name " + center.name + " | sessionid : " + center.sessionId + " | capacity:" + str(
+                            center.capacity) + "| Date :" + center.date)
                 centerList_Global = list
                 logger.info(" retrieved Global list length : " + str(len(centerList_Global)))
             except EOFError:

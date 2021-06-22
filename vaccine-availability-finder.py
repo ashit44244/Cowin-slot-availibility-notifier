@@ -161,37 +161,37 @@ def isNotificationRequired(center):
         if center in centerList_Global:
             # if any(gl.sessionId == center.sessionId for gl in centerList_Global):
             saved_elements = getSavedCenter(center)
-            logger.info(" center present in global list: saved capacity : "
+            logger.debug(" center present in global list: saved capacity : "
                         + str(saved_elements.capacity) + " center capacity : " + str(center.capacity))
             # global list contains center list
             # chk capacity if latest capacity > 1 then don't update the global list  nor sent notification
             if center.capacity > 1:
                 if center.capacity > saved_elements.capacity + 20:
-                    logger.info("center capacity increased - Send Notification: updated global list")
+                    logger.debug("center capacity increased - Send Notification: updated global list")
                     updateCapacity(center)
                     sentNotification = True
-                    logger.info("centerList_Global size after updating : " + str(len(centerList_Global)))
+                    logger.debug("centerList_Global size after updating : " + str(len(centerList_Global)))
                 else:
-                    logger.info("new capacity not added - No Notification send ")
+                    logger.debug("new capacity not added - No Notification send ")
                     sentNotification = False
             elif center.capacity == 0:
-                logger.info("capacity is 0 all slots booked , remove it from global list and wait for new slots")
-                logger.info("remove from global list: len before: " + str(len(centerList_Global)))
+                logger.debug("capacity is 0 all slots booked , remove it from global list and wait for new slots")
+                logger.debug("remove from global list: len before: " + str(len(centerList_Global)))
                 centerList_Global.remove(center)
-                logger.info("remove from global list: len after: " + str(len(centerList_Global)))
+                logger.debug("remove from global list: len after: " + str(len(centerList_Global)))
                 sentNotification = False
         else:
             # if not present in global list and capacity > 1 add in global list and send notification
             if center.capacity > 1:
-                logger.info("Not present in global list and capacity > 0 add in global list and send notification")
+                logger.debug("Not present in global list and capacity > 0 add in global list and send notification")
                 centerList_Global.append(center)
                 sentNotification = True
             else:
-                logger.info("Not present in global list and capacity is 0 No action required")
+                logger.debug("Not present in global list and capacity is 0 No action required")
     else:
         # if global list is empty then send notification if capacity >  1
         if center.capacity > 1:
-            logger.info("global list is empty then send notification for capacity > 0")
+            logger.debug("global list is empty then send notification for capacity > 0")
             sentNotification = True
             centerList_Global.append(center)
     logger.info("Notification required for the centre :" + center.name + " is: " + str(sentNotification) + '\n')
@@ -214,9 +214,15 @@ def updateCapacity(center):
 def saveGlobalListState(district_id):
     global centerList_Global
     global save_state_timer
+    systemDate = datetime.today().strftime('%d-%m-%Y')
+    empty_list = []
     # 2 hours
     if save_state_timer == 0 or save_state_timer == 7200:
         outputFile = open('global_list_' + str(district_id) + '.dat', 'wb')
+        pickle.dump(empty_list, outputFile)
+        for center in centerList_Global:
+            if center.date < systemDate:
+                centerList_Global.remove(center)
         pickle.dump(centerList_Global, outputFile)
         outputFile.close()
         logger.info("state saved GlobalList size: " + str(len(centerList_Global)))
