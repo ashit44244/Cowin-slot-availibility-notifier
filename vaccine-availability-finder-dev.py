@@ -211,18 +211,18 @@ def saveGlobalListState(district_id):
     systemDate = datetime.today().strftime('%d-%m-%Y')
     empty_list = []
     # 2 hours
-    if save_state_timer == 0 or save_state_timer == 7200:
+    if save_state_timer == 0 or save_state_timer == 300:
         outputFile = open('global_list_' + str(district_id) + '.dat', 'wb')
         pickle.dump(empty_list, outputFile)
         for center in centerList_Global:
             if center.date < systemDate:
                 centerList_Global.remove(center)
-        pickle.dump(centerList_Global, outputFile)
+        pickle.dump(centerList_Global, outputFile, protocol = 4)
         outputFile.close()
         logger.info("state saved GlobalList size: " + str(len(centerList_Global)))
         # reset the timer to zero
         save_state_timer = 0
-    save_state_timer += 15
+    save_state_timer += 5
 
 
 def retrieveGlobalListState(district_id):
