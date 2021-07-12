@@ -217,7 +217,7 @@ def saveGlobalListState(district_id):
         for center in centerList_Global:
             if center.date < systemDate:
                 centerList_Global.remove(center)
-        pickle.dump(centerList_Global, outputFile, protocol = 4)
+        pickle.dump(centerList_Global, outputFile, protocol=4)
         outputFile.close()
         logger.info("state saved GlobalList size: " + str(len(centerList_Global)))
         # reset the timer to zero
